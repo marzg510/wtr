@@ -5,6 +5,7 @@ Work Time Recorder
 ## Debug
 
 ```bash
+cd tauri-wtr
 yarn tauri dev
 ```
 
