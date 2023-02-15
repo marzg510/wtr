@@ -2,6 +2,11 @@
 Work Time Recorder
 
 
+## Debug
+
+```bash
+yarn tauri dev
+```
 
 ## Link Repos
 
