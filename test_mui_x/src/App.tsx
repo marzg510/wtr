@@ -8,14 +8,18 @@ const rows: GridRowsProp = [
 ];
 
 const columns: GridColDef[] = [
-  { field: 'col1', headerName: 'Column 1', width: 150 },
+  { field: 'col1', headerName: 'Column 1', width: 150, editable: true },
   { field: 'col2', headerName: 'Column 2', width: 150 },
 ];
 
 export default function App() {
   return (
     <div style={{ height: 300, width: '100%' }}>
-      <DataGrid rows={rows} columns={columns} />
+    {/* // <div style={{ display: 'flex', width: '100%' }}> */}
+      {/* // <div style={{ flexGrow: 1 }}> */}
+        <DataGrid experimentalFeatures={{ newEditingApi: true }}
+        rows={rows} columns={columns} />
+      {/* </div> */}
     </div>
   );
 }
