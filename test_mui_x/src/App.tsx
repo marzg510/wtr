@@ -1,6 +1,5 @@
-import logo from './logo.svg';
-import './App.css';
-import { DataGrid } from '@mui/x-data-grid';
+import * as React from 'react';
+import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 const rows: GridRowsProp = [
   { id: 1, col1: 'Hello', col2: 'World' },
