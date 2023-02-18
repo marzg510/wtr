@@ -2,11 +2,11 @@ import './App.css';
 
 import { useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-import DataGrid from 'react-data-grid';
+import DataGrid, { textEditor } from 'react-data-grid';
 
 const columns = [
-  { key: 'id', name: 'ID' },
-  { key: 'title', name: 'Title' }
+  { key: 'id', name: 'ID', width: 10 },
+  { key: 'title', name: 'Title', width: 100, editor: textEditor }
 ];
 
 
