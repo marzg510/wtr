@@ -36,3 +36,9 @@
     transform: rotate(360deg);
   }
 }
+
+.mycell {
+  background-color: cyan;
+  grid-template-rows: auto;
+  display: grid;
+}

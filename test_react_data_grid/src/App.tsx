@@ -3,13 +3,13 @@ import './App.css';
 import { useState } from 'react';
 import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
-// import { Column, SelectColumn } from 'react-data-grid';
-// import dateEditor, { timeEditor } from './DateEditor';
+import { Column, SelectColumn } from 'react-data-grid';
+import dateEditor, { timeEditor } from './DateEditor';
 import { css } from '@linaria/core';
 
-const sampleStyle = css`
-  color: red;
-`;
+// const sampleStyle = css`
+//   color: red;
+// `;
 // const selectCellClassname = css`
   // display: flex;
 //   align-items: center;
@@ -31,19 +31,19 @@ const sampleStyle = css`
 
 // const columns: readonly Column<Row>[] = [
 const columns = [
-  // {
-    // ...SelectColumn,
-    // headerCellClass: cellClassname,
-    // cellClass: cellClassname
-  // },
-  { key: 'id', name: 'ID', width: 10 },
-  // { key: 'workDate', name: 'Date', width: 120, editor: dateEditor },
-  // { key: 'date', name: 'Date', width: 120, editor: dateEditor },
-  // { key: 'startTime', name: 'Start', width: 80, editor: timeEditor },
-  // { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
-  // { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
-  // { key: 'workTime', name: 'Working', width: 80 },
-  // { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  {
+    ...SelectColumn,
+    headerCellClass: "mycell",
+    cellClass: "mycell"
+  },
+  { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
+  { key: 'workDate', name: 'Date', width: 120, editor: dateEditor },
+  { key: 'date', name: 'Date', width: 120, editor: dateEditor },
+  { key: 'startTime', name: 'Start', width: 80, editor: timeEditor },
+  { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
+  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
+  { key: 'workTime', name: 'Working', width: 80 },
+  { key: 'work', name: 'Work', width: 300, editor: textEditor },
 ];
 
 function App() {
