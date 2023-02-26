@@ -5,32 +5,22 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn } from 'react-data-grid';
 import dateEditor, { timeEditor } from './DateEditor';
-import { css } from '@linaria/core';
+// TODO: Try DatePicker
+// https://reactdatepicker.com/
 
-// const sampleStyle = css`
-//   color: red;
-// `;
-// const selectCellClassname = css`
-  // display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   > input {
-//     margin: 0;
-//   }
-// `;
+interface Row {
+  id: number;
+  // workDate: string;
+  workDate: Date;
+  startTime: string;
+  endTime: string;
+  restTime: string;
+  // workTime: Date;
+  // work: string;
+}
 
-// interface Row {
-//   id: number;
-//   workDate: string;
-//   startTime: string;
-//   endTime: string;
-//   restTime: string;
-//   // workTime: Date;
-//   // work: string;
-// }
-
-// const columns: readonly Column<Row>[] = [
-const columns = [
+const columns: readonly Column<Row>[] = [
+// const columns = [
   {
     ...SelectColumn,
     headerCellClass: "mycell",
@@ -50,8 +40,8 @@ function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, date: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
-    { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
+    { id: 0, workDate: new Date(Date.parse('2022-01-01')), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
+    // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   return (
     <DataGrid
