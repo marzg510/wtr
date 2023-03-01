@@ -49,7 +49,7 @@
     // console.log(lines.length)
     var alerts = [];
     alerts.add = function(index, message ) {
-      this.push(`${index}行目:${message}`);
+      this.push(`${index+1}行目:${message}`);
     }
     // フォームのクリア処理
     clearForm();
@@ -57,13 +57,10 @@
       if ( line.trim().length === 0 ) return;
       var fields = line.split('\t');
       var date = new Date(Date.parse(fields[0]));
-      // console.log(date);
       if ( date.getTime() != thisDate.getTime() ) {
-        // alerts.push(`${index}:日付が違います`);
         alerts.add(index,'日付が違います');
         return;
       }
-      // console.log("get values");
       var workTime = new Date(Date.parse(`${fields[0]} ${fields[5]}`));
       var workHour = workTime.getHours();
       var workMinute = workTime.getMinutes();
@@ -93,7 +90,7 @@
       // return true;
     });
     console.log("alerts", alerts);
-    alert(alerts);
+    if ( alerts.length > 0 ) alert(alerts.join('\n'));
   })
   // フォームのクリア
   function clearForm() {
@@ -102,6 +99,22 @@
       $(this).val("").change().blur();
     });
 
+  }
+  function findEmptyRow(projectCd) {
+    // var rows = this.getRows();
+    var row =  $(`table[summary="管理単位"] tr:contains(${projectCd})`);
+    var emptyRow = $('input[name="minsH"]', rows).filter(function() {
+      return $.trim($(this).val()) === '';
+    }).parent().parent().first();
+    if ( emptyRow !== undefined ) {
+      // 行に値をセット
+      emptyRow.setValues = function(task, hour, minute) {
+        $('input[name="task"]', this).val(task).change().blur();
+        $('input[name="minsH"]', this).val(hour).change().blur();
+        $('input[name="minsM"]', this).val(minute).change().blur();
+      }
+    }
+    return emptyRow;
   }
   function ProjectRows(projectCd) {
     this.projectCd = projectCd
@@ -139,6 +152,8 @@
       });
       $('input[type="button"][value="コピー"]',row).click();
       console.log("row clicked");
+      Cookies.set(cookieKeyCopyCount,1, {expires: 1});
+      // Cookies.set(cookieKeyCopySeqNo,$(this).siblings('input[name="seqNo"]').val(), {expires: 1});
       return this.findEmptyRow();
     }
   }
