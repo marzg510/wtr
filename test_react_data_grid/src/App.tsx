@@ -11,12 +11,16 @@ import dateEditor, { timeEditor } from './DateEditor';
 interface Row {
   id: number;
   // workDate: string;
-  workDate: Date;
+  workDate: number;
   startTime: string;
   endTime: string;
   restTime: string;
   // workTime: Date;
   // work: string;
+}
+const dateFormatter = new Intl.DateTimeFormat(navigator.language);
+function TimestampFormatter({ timestamp }: { timestamp: number }) {
+  return <>{dateFormatter.format(timestamp)}</>;
 }
 
 const columns: readonly Column<Row>[] = [
@@ -27,8 +31,12 @@ const columns: readonly Column<Row>[] = [
     cellClass: "mycell"
   },
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
-  { key: 'workDate', name: 'Date', width: 120, editor: dateEditor },
-  { key: 'date', name: 'Date', width: 120, editor: dateEditor },
+  { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
+    formatter(props) {
+      return <TimestampFormatter timestamp={props.row.workDate} />;
+    }
+  },
+  // { key: 'date', name: 'Date', width: 120, editor: dateEditor },
   { key: 'startTime', name: 'Start', width: 80, editor: timeEditor },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
   { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
@@ -40,7 +48,7 @@ function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date(Date.parse('2022-01-01')), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
+    { id: 0, workDate: new Date(Date.parse('2022-01-01')).getTime(), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   return (
