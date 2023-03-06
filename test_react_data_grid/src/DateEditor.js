@@ -4,8 +4,8 @@ export default function dateEditor({ column, row, onRowChange, onClose } ) {
   return (
     <input type="date"
       className={textEditorClassname}
-      value={row[column.key]}
-      onChange={(event) => onRowChange({ ...row, [column.key]: event.target.value })}
+      value={Intl.DateTimeFormat("ja-JP").format(row[column.key])}
+      onChange={(event) => onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })}
       onBlur={() => onClose(true)}
       autoFocus
     />
