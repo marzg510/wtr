@@ -51,12 +51,34 @@ function App() {
     { id: 0, workDate: new Date(Date.parse('2022-01-01')).getTime(), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
+  const [dateValue, setDateValue] = useState("");
+  const [dateDispValue, setDateDispValue] = useState("");
   return (
-    <DataGrid
-      columns={columns}
-      rows={rows}
-      onRowsChange={setRows}
-    />
+    <div>
+      <DataGrid
+        columns={columns}
+        rows={rows}
+        onRowsChange={setRows}
+      />
+      <div>
+        <input type="date"
+          // className={textEditorClassname}
+          // value={Intl.DateTimeFormat("ja-JP").format(row[column.key])}
+          // id="m510-date"
+          value={dateValue}
+          onChange={(event) => {
+            setDateValue(event.target.value);
+            setDateDispValue(event.target.value);
+            console.log(event.target.value);
+          }}
+          // onBlur={() => onClose(true)}
+          autoFocus
+        />
+        <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
+        <input type="text" value={dateDispValue}/>
+        <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
+      </div>
+    </div>
   );
 }
 
