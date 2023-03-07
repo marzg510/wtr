@@ -42,6 +42,10 @@ const columns: readonly Column<Row>[] = [
   { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
   { key: 'workTime', name: 'Working', width: 80 },
   { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'projectName', name: 'ProjectName', width: 300, editor: textEditor },
+  { key: 'phase', name: 'phase', width: 300, editor: textEditor },
+  { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
 function App() {
