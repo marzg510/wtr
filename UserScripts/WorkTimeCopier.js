@@ -11,15 +11,15 @@
   'use strict';
 
   console.log("enter the site");
-  const cookieKeyCopyCount='m510-copy-count';
-  const cookieKeyCopySeqNo='m510-copy-seqNo';
   const cookieKeyRowCopyClicked='m510-copy-clicked';
   const cookieKeyTextArea='m510-textarea';
   const cookieKeyIndex='m510-textarea-index';
   const idTextArea = "m510-worktime-textarea";
 
   // 正しい画面かチェック
-  if ( $("td:contains(【日次勤務入力】)").length != 1) return;
+  const td = $("td:contains(【日次勤務入力】)");
+  if ( td.length != 1) return;
+  const debugArea = $(td).append("<div/>")
 
   // 日付取り出し
   const thisDate = new Date(Date.parse(
@@ -33,7 +33,9 @@
   const cookieIndex = Cookies.get(cookieKeyIndex);
   console.log(cookieKeyTextArea, cookieTextArea);
   console.log(cookieKeyIndex, cookieIndex);
+  $(debugArea).append(`<p>cookie_clicked:${cookieRowCopyClicked}</p>`)
 
+  // アラートメッセージ初期化
   var alerts = [];
   alerts.add = function(index, message ) {
     this.push(`${index+1}行目:${message}`);
@@ -86,9 +88,11 @@
       if ( line.trim().length === 0 ) return false;
       var copied = CopyWorkTime(line,i);
       if ( !copied ) return true;
+      $(debugArea).append(`<p>copied index=${i}, last_index=${last_index}</p>`)
     });
+    $(debugArea).append(`<p>copy work times loop end. last_index=${last_index}, lines.length=${lines.length}</p>`)
     // クッキークリア
-    if ( last_index === lines.length ) {
+    if ( last_index+1 === lines.length ) {
       clearCookie();
     }
   }
@@ -161,7 +165,7 @@
         <input type="button" id="m510-btn-clear-cookie" value="cookieクリア(debug)"/>
       </td>
     `);
-    $("#m510-worktime-textarea").val(value);
+    $(`#${idTextArea}`).val(value);
     // 転記ボタンイベントの処理追加
     $("#m510-btn-copy-worktime").click(onCopyClicked);
     // クッキークリア処理
@@ -183,11 +187,10 @@
    * クッキーのクリア
    */
   function clearCookie() {
-    Cookies.set(cookieKeyCopyCount,"");
-    Cookies.set(cookieKeyCopySeqNo,"");
     Cookies.set(cookieKeyRowCopyClicked,"");
     Cookies.set(cookieKeyTextArea,"");
     Cookies.set(cookieKeyIndex,"");
+    $(debugArea).append(`<p>cookie cleared.</p>`)
   }
   /**
    * 指定された管理単位NOのTRエレメントの集合を返す
