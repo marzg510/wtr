@@ -33,7 +33,7 @@
 
   const worktimeTable = $('table[summary="管理単位"]');
 
-  const cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
+  var cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
   const cookieTextArea = Cookies.get(cookieKeyTextArea);
   const cookieIndex = Cookies.get(cookieKeyIndex);
   console.log(cookieKeyTextArea, cookieTextArea);
@@ -104,8 +104,7 @@
     $(debugArea).append(`<p>copy work times loop end. last_index=${last_index}, lines.length=${lines.length}</p>`)
     if ( last_index+1 === lines.length ) {
       // 転記が終わった時の処理
-      // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
-      // TODO:出退勤時刻の転記
+      // 出退勤時刻の転記
       copyStartEndTime(lines);
       // クッキークリア
       clearCookie();
@@ -134,7 +133,11 @@
     if ( row === undefined || row.length == 0 ) {
         // 空行が見つからない時はコピーボタンを押して行追加する
         console.log("no empty rows found, clicking copy");
-        // TODO:コピーボタンを押したのに空行が見つからない時はalert
+        // コピーボタンを押したのに空行が見つからない時はalert
+        if ( cookieRowCopyClicked ) {
+          alerts.add("コピーボタンを押したのに空行が見つかりませんでした。");
+          return false;
+        }
         clickRowCopy(projectCd,index);
         console.log("click end");
         return false;
@@ -144,6 +147,7 @@
     $('input[name="task"]', row).val(task).change().blur();
     $('input[name="minsH"]', row).val(workHour).change().blur();
     $('input[name="minsM"]', row).val(workMinute).change().blur();
+    cookieRowCopyClicked = false; // 一度転記が成功したら行コピーボタンを押したフラグはどうでもいいはず
     return true;
   }
   /**
