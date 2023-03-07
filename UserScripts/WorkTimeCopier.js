@@ -10,6 +10,14 @@
 (function() {
   'use strict';
 
+  console.log("enter the site");
+  const cookieKeyCopyCount='m510-copy-count';
+  const cookieKeyCopySeqNo='m510-copy-seqNo';
+  const cookieKeyRowCopyClicked='m510-copy-clicked';
+  const cookieKeyTextArea='m510-textarea';
+  const cookieKeyIndex='m510-textarea-index';
+  const idTextArea = "m510-worktime-textarea";
+
   // 正しい画面かチェック
   if ( $("td:contains(【日次勤務入力】)").length != 1) return;
 
@@ -18,32 +26,17 @@
     $('table[summary="日付"] > tbody > tr:first > td:first').text()
   ));
 
-  const cookieKeyCopyCount='m510-copy-count';
-  const cookieKeyCopySeqNo='m510-copy-seqNo';
-  const cookieKeyRowCopyClicked='m510-copy-clicked';
-  const cookieKeyTextArea='m510-textarea';
-  const cookieKeyIndex='m510-textarea-index';
-
-  console.log("enter the site");
   const worktimeTable = $('table[summary="管理単位"]');
 
-  var cookieCopyCount = Cookies.get(cookieKeyCopyCount);
-  var cookieCopySeqNo = Cookies.get(cookieKeyCopySeqNo);
   const cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
   const cookieTextArea = Cookies.get(cookieKeyTextArea);
   const cookieIndex = Cookies.get(cookieKeyIndex);
-  // console.log(cookieKeyCopyCount, cookieCopyCount);
-  // console.log(cookieKeyCopySeqNo, cookieCopySeqNo);
-  // console.log(cookieKeyCopyClicked, cookieCopyClicked);
   console.log(cookieKeyTextArea, cookieTextArea);
   console.log(cookieKeyIndex, cookieIndex);
 
-  // CopyCookie設定済みだったらコピーを繰り返す
-  if ( cookieCopyCount > 0 ) {
-    var btn = $(`input[name="seqNo"][value="${cookieCopySeqNo}"`).siblings('input[value="コピー"]');
-    console.log("btn click by cookie",btn)
-    $(btn).click()
-    Cookies.set(cookieKeyCopyCount, --cookieCopyCount)
+  var alerts = [];
+  alerts.add = function(index, message ) {
+    this.push(`${index+1}行目:${message}`);
   }
   // 貼り付け用テキストボックスを追加
   addTextArea(cookieTextArea);
@@ -55,25 +48,14 @@
     console.log("line",lines[cookieIndex])
     CopyWorkTimes(lines, cookieIndex);
   }
-  // ５行コピーボタンを追加
-  addMultiCopyButtons();
-  // var lines = $('#m510-worktime-textarea').val("2023/02/24(金)	9:30	10:00	0:00	【N-BASE】移行チーム朝会＆QA確認会	0:30	NB(移行）	22090130140001	0	30	移行支援	朝会他メール確認等");
 
-  /**
-   * フォームのクリア
-   */
-  function clearForm() {
-    console.log("clear form");
-    $('input[type="text"]',worktimeTable).each(function(index) {
-      $(this).val("").change().blur();
-    });
-  }
+  // ******* functionの定義 *******
   /**
    * テキストエリアの中身を行の配列に変換
    * @returns 行の配列
    */
   function getTextAreaLines() {
-    return $('#m510-worktime-textarea').val().split('\n');
+    return $(`#${idTextArea}`).val().split('\n');
   }
   /**
    * 転記ボタンイベント
@@ -81,22 +63,12 @@
   function onCopyClicked() {
     var lines = getTextAreaLines();
     console.log(lines.length)
-    var alerts = [];
-    alerts.add = function(index, message ) {
-      this.push(`${index+1}行目:${message}`);
-    }
     // フォームのクリア処理
     clearForm();
     // 転記
     CopyWorkTimes(lines,0);
-    // // １行ずつ転記
-    // lines.some((line,index) => {
-    //   if ( line.trim().length === 0 ) return;
-    //   CopyWorkTime(line,index);
-    //   // return true;
-    // });
-    // console.log("alerts", alerts);
     if ( alerts.length > 0 ) alert(alerts.join('\n'));
+    alerts = [];
     // TODO:出退勤時刻の転記
     return;
   }
@@ -107,14 +79,18 @@
    */
   function CopyWorkTimes(lines, index) {
     console.log("copy work times");
+    var last_index = 0;
     lines.some((line,i) => {
+      last_index = i
       if ( i < index ) return false;
       if ( line.trim().length === 0 ) return false;
       var copied = CopyWorkTime(line,i);
       if ( !copied ) return true;
     });
     // クッキークリア
-    // clearCookie();
+    if ( last_index === lines.length ) {
+      clearCookie();
+    }
   }
   /**
    * 1行の作業時間を転記
@@ -136,25 +112,18 @@
     // TODO:プロジェクトが見つからない時はalertに追加
     var row = findEmptyRow(projectCd);
     if ( row === undefined || row.length == 0 ) {
-        // alerts.add(index,'空行が見つかりませんでした。コピーボタンを押して追加してください');
-        // return true;
         // 空行が見つからない時はコピーボタンを押して行追加する
         console.log("no empty rows found, clicking copy");
+        // TODO:コピーボタンを押したのに空行が見つからない時はalert
         clickRowCopy(projectCd,index);
         console.log("click end");
-      // row = rows.addEmptyRow();
-      // if ( row === undefined || row.length == 0 ) {
-      // alerts.add(index,'コピーボタンを押しても空行が追加されませんでした');
         return false;
-      // }
-      // console.log("copy end");
     }
     console.log("found row", row);
     // 転記
     row.setValues(task,workHour,workMinute);
     // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
     return true;
-
   }
   /**
    * 空行を探す
@@ -179,62 +148,15 @@
     return emptyRow;
   }
   /**
-   * @deprecated
-   * @param {*} projectCd 
-   */
-  function ProjectRows(projectCd) {
-    this.projectCd = projectCd
-    // プロジェクトの行を返す
-    ProjectRows.prototype.getRows = function() {
-      return $(`table[summary="管理単位"] tr:contains(${projectCd})`);
-    }
-    // 空の行を探す
-    ProjectRows.prototype.findEmptyRow = function() {
-      var rows = this.getRows();
-      var emptyRow = $('input[name="minsH"]', rows).filter(function() {
-        return $.trim($(this).val()) === '';
-      }).parent().parent().first();
-      console.log( "project row", rows );
-      console.log( "empty row", emptyRow );
-      // console.log( "empty row time td val", $('input[name="minsH"]',emptyTimeTd).val() );
-      // 行に値をセット
-      if ( emptyRow !== undefined ) {
-        emptyRow.setValues = function(task, hour, minute) {
-          console.log("setvalues", this);
-          // $('input[name="task"]', this).val("test").change().blur();
-          $('input[name="task"]', this).val(task).change().blur();
-          $('input[name="minsH"]', this).val(hour).change().blur();
-          $('input[name="minsM"]', this).val(minute).change().blur();
-        }
-      }
-      return emptyRow;
-    }
-    // コピーボタンを押して空行を追加する
-    ProjectRows.prototype.addEmptyRow = function() {
-      var row = this.getRows().first();
-      console.log("project first row",row );
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log("onload");
-      });
-      $('input[type="button"][value="コピー"]',row).click();
-      console.log("row clicked");
-      Cookies.set(cookieKeyCopyCount,1, {expires: 1});
-      // Cookies.set(cookieKeyCopySeqNo,$(this).siblings('input[name="seqNo"]').val(), {expires: 1});
-      return this.findEmptyRow();
-    }
-  }
-  // 転記用テキストエリア
-  /**
    * 転記用テキスト入力エリアの追加
    */
   function addTextArea(value) {
     console.log("adding textarea",value);
-    var tre = $('tr:contains(シフト手当回数)');
     var tre = $('table[summary="PC時間/かい離"] > tbody > tr').eq(0);
     $(tre).append(`
       <td rowspan="4" id="m510-worktime-cell">
         <span>タブ区切りで日付～タスクまでを貼り付け</span>
-        <textarea id="m510-worktime-textarea" cols="39" rows="10" />
+        <textarea id="${idTextArea}" cols="39" rows="10" />
         <input type="button" id="m510-btn-copy-worktime" value="転記"/>
         <input type="button" id="m510-btn-clear-cookie" value="cookieクリア(debug)"/>
       </td>
@@ -246,18 +168,26 @@
     $("#m510-btn-clear-cookie").click(clearCookie);
   }
   /**
-   * @deprecated
+   * 行のコピーボタンを押す
+   * @param {string} projectCd
+   * @param {number} index 
    */
-  function addMultiCopyButtons() {
-    $(`<input type=button value="5行コピー" name="copy5"/>`).appendTo(
-      $('table[summary="管理単位"] td:has(input[type="button"][value="コピー"])')
-    ).click(function() {
-      console.log("clicked ", $(this));
-      console.log("copy btn", $(this).siblings('input[type="button"][value="コピー"]'));
-      $(this).siblings('input[type="button"][value="コピー"]').click();
-      Cookies.set(cookieKeyCopyCount,4, {expires: 1});
-      Cookies.set(cookieKeyCopySeqNo,$(this).siblings('input[name="seqNo"]').val(), {expires: 1});
-    });
+  function clickRowCopy(projectCd,index) {
+    console.log("click row copy");
+    Cookies.set(cookieKeyRowCopyClicked, true, {expires: 1});
+    Cookies.set(cookieKeyTextArea, $(`#${idTextArea}`).val(), {expires: 1});
+    Cookies.set(cookieKeyIndex, index, {expires: 1});
+    $(getProjectRows(projectCd)).first().find('input[type="button"][value="コピー"]').first().click();
+  }
+  /**
+   * クッキーのクリア
+   */
+  function clearCookie() {
+    Cookies.set(cookieKeyCopyCount,"");
+    Cookies.set(cookieKeyCopySeqNo,"");
+    Cookies.set(cookieKeyRowCopyClicked,"");
+    Cookies.set(cookieKeyTextArea,"");
+    Cookies.set(cookieKeyIndex,"");
   }
   /**
    * 指定された管理単位NOのTRエレメントの集合を返す
@@ -268,24 +198,12 @@
     return $(`tr:contains(${projectCd})`, worktimeTable);
   }
   /**
-   * 行のコピーボタンを押す
-   * @param {string} projectCd
-   * @param {number} index 
+   * フォームのクリア
    */
-  function clickRowCopy(projectCd,index) {
-    console.log("click row copy");
-    Cookies.set(cookieKeyRowCopyClicked,true, {expires: 1});
-    Cookies.set(cookieKeyTextArea,$('#m510-worktime-textarea').val(), {expires: 1});
-    console.log(cookieKeyTextArea,$('#m510-worktime-textarea').val(), {expires: 1});
-    Cookies.set(cookieKeyIndex,index, {expires: 1});
-    console.log(cookieKeyIndex,index);
-    $(getProjectRows(projectCd)).first().find('input[type="button"][value="コピー"]').first().click();
-  }
-  function clearCookie() {
-    Cookies.set(cookieKeyCopyCount,"");
-    Cookies.set(cookieKeyCopySeqNo,"");
-    Cookies.set(cookieKeyRowCopyClicked,"");
-    Cookies.set(cookieKeyTextArea,"");
-    Cookies.set(cookieKeyIndex,"");
+  function clearForm() {
+    console.log("clear form");
+    $('input[type="text"]',worktimeTable).each(function(index) {
+      $(this).val("").change().blur();
+    });
   }
 })();
