@@ -26,6 +26,11 @@
     $('table[summary="日付"] > tbody > tr:first > td:first').text()
   ));
 
+  // 閉じるときもcookieをクリアする
+  $('input[name="btn_close"]:first').on('click', function() {
+    clearCookie();
+  });
+
   const worktimeTable = $('table[summary="管理単位"]');
 
   const cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
@@ -48,7 +53,7 @@
     var lines = getTextAreaLines();
     console.log("lines",lines)
     console.log("line",lines[cookieIndex])
-    CopyWorkTimes(lines, cookieIndex);
+    copyWorkTimes(lines, cookieIndex);
   }
 
   // ******* functionの定義 *******
@@ -68,10 +73,9 @@
     // フォームのクリア処理
     clearForm();
     // 転記
-    CopyWorkTimes(lines,0);
+    copyWorkTimes(lines,0);
     if ( alerts.length > 0 ) alert(alerts.join('\n'));
     alerts = [];
-    // TODO:出退勤時刻の転記
     return;
   }
   /**
@@ -79,41 +83,53 @@
    * @param {string[]} lines 
    * @param {number} index 
    */
-  function CopyWorkTimes(lines, index) {
+  function copyWorkTimes(lines, index) {
     console.log("copy work times");
     var last_index = 0;
     lines.some((line,i) => {
       last_index = i
       if ( i < index ) return false;
       if ( line.trim().length === 0 ) return false;
-      var copied = CopyWorkTime(line,i);
-      if ( !copied ) return true;
+      var fields = parseLine(line);
+      // プロジェクトが見つからない時はalertに追加
+      var projectCd = fields[7];
+      if( getProjectRows(projectCd).length === 0 ) {
+        alerts.add(index, `管理単位NO ${projectCd} が見つかりません`)
+        return false;
+      }
+      var copied = copyWorkTime(fields,i);
+      if ( !copied ) return true; // break
       $(debugArea).append(`<p>copied index=${i}, last_index=${last_index}</p>`)
     });
     $(debugArea).append(`<p>copy work times loop end. last_index=${last_index}, lines.length=${lines.length}</p>`)
-    // クッキークリア
     if ( last_index+1 === lines.length ) {
+      // 転記が終わった時の処理
+      // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
+      // TODO:出退勤時刻の転記
+      copyStartEndTime(lines);
+      // クッキークリア
       clearCookie();
     }
   }
+
   /**
    * 1行の作業時間を転記
-   * @param {string} line 
+   * @param {string[]} fields 
+   * @param {number} index 
+   * @returns copy succeed
    */
-  function CopyWorkTime(line, index) {
+  function copyWorkTime(fields, index) {
     console.log("CopyWorkTime index",index)
-    var fields = line.split('\t');
     var date = new Date(Date.parse(fields[0]));
     if ( date.getTime() != thisDate.getTime() ) {
       alerts.add(index,'日付が違います');
-      return;
+      return false;
     }
     var workTime = new Date(Date.parse(`${fields[0]} ${fields[5]}`));
     var workHour = workTime.getHours();
     var workMinute = workTime.getMinutes();
     var projectCd = fields[7];
     var task = fields[11];
-    // TODO:プロジェクトが見つからない時はalertに追加
     var row = findEmptyRow(projectCd);
     if ( row === undefined || row.length == 0 ) {
         // 空行が見つからない時はコピーボタンを押して行追加する
@@ -125,9 +141,52 @@
     }
     console.log("found row", row);
     // 転記
-    row.setValues(task,workHour,workMinute);
-    // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
+    $('input[name="task"]', row).val(task).change().blur();
+    $('input[name="minsH"]', row).val(workHour).change().blur();
+    $('input[name="minsM"]', row).val(workMinute).change().blur();
     return true;
+  }
+  /**
+   * 出退勤時刻の転記
+   * @param {string[]} lines
+   */
+  function copyStartEndTime(lines) {
+    // 出勤時刻、退勤時刻を探す
+    var minStartTime = new Date(9999,11,31).getTime();
+    var maxEndTime = new Date(1970,0,1).getTime();
+    lines.some((line,i)=>{
+      var fields = parseLine(line);
+      var startTime = new Date(Date.parse(`${fields[0]} ${fields[1]}`)).getTime();
+      var endTime = new Date(Date.parse(`${fields[0]} ${fields[2]}`)).getTime();
+      var projectCd = fields[7];
+      if ( !hasProjectCd(projectCd) ) return false; // 見つからない管理単位NOはスキップ
+      minStartTime = Math.min(minStartTime, startTime);
+      maxEndTime = Math.max(maxEndTime, endTime);
+    });
+    $(debugArea).append(`<p>start=${typeof(minStartTime)}, end=${maxEndTime}</p>`)
+    // 転記
+    var start = new Date(minStartTime);
+    var end = new Date(maxEndTime);
+    $('input[name="startTH"]:first').val(start.getHours()).change().blur();
+    $('input[name="startTM"]:first').val(start.getMinutes()).change().blur();
+    $('input[name="endTH"]:first').val(end.getHours()).change().blur();
+    $('input[name="endTM"]:first').val(end.getMinutes()).change().blur();
+  }
+  /**
+   * １行をパースする
+   * @param {string} line 
+   * @returns fiels配列
+   */
+  function parseLine(line) {
+    return line.split('\t');
+  }
+  /**
+   * 管理単位NOがあるか
+   * @param {string} projectCd 
+   * @returns booolean 管理単位NOがあるか
+   */
+  function hasProjectCd(projectCd) {
+    return getProjectRows(projectCd).length > 0;
   }
   /**
    * 空行を探す
@@ -141,14 +200,6 @@
     var emptyRow = $('input[name="minsH"]', rows).filter(function() {
       return $.trim($(this).val()) === '';
     }).parent().parent().first();
-    if ( emptyRow !== undefined ) {
-      // 行に値をセット
-      emptyRow.setValues = function(task, hour, minute) {
-        $('input[name="task"]', this).val(task).change().blur();
-        $('input[name="minsH"]', this).val(hour).change().blur();
-        $('input[name="minsM"]', this).val(minute).change().blur();
-      }
-    }
     return emptyRow;
   }
   /**
