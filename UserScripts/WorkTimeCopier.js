@@ -56,57 +56,7 @@
   ));
   // 転記ボタンイベントの処理追加
   $("#m510-btn-copy-worktime").click(onCopyClicked);
-  // $("#m510-btn-copy-worktime").click(function() {
-    // // TODO:出退勤時刻の転記
-    // var lines = $('#m510-worktime-textarea').val().split('\n');
-    // // console.log(lines.length)
-    // var alerts = [];
-    // alerts.add = function(index, message ) {
-    //   this.push(`${index+1}行目:${message}`);
-    // }
-    // // フォームのクリア処理
-    // clearForm();
-    // // １行ずつ転記
-    // lines.some((line,index) => {
-    //   if ( line.trim().length === 0 ) return;
-    //   var fields = line.split('\t');
-    //   var date = new Date(Date.parse(fields[0]));
-    //   if ( date.getTime() != thisDate.getTime() ) {
-    //     alerts.add(index,'日付が違います');
-    //     return;
-    //   }
-    //   var workTime = new Date(Date.parse(`${fields[0]} ${fields[5]}`));
-    //   var workHour = workTime.getHours();
-    //   var workMinute = workTime.getMinutes();
-    //   var projectCd = fields[7];
-    //   var task = fields[11];
-    //   // console.log(date, workTime, workHour, workMinute, projectCd, task);
-    //   // var rows = new ProjectRows(projectCd);
-    //   // TODO:プロジェクトが見つからない時はalertに追加
-    //   // var row = rows.findEmptyRow();
-    //   var row = findEmptyRow(projectCd);
-    //   if ( row === undefined || row.length == 0 ) {
-    //       alerts.add(index,'空行が見つかりませんでした。コピーボタンを押して追加してください');
-    //       return true;
-    //       // 空行が見つからない時はコピーボタンを押して行追加する
-    //       // pushCopy(projectCd,index);
-    //     // console.log("no empty rows found, clicking copy");
-    //     // row = rows.addEmptyRow();
-    //     // if ( row === undefined || row.length == 0 ) {
-    //       // alerts.add(index,'コピーボタンを押しても空行が追加されませんでした');
-    //       // return;
-    //     // }
-    //     // console.log("copy end");
-    //   }
-    //   console.log("found row", row);
-    //   // 転記
-    //   row.setValues(task,workHour,workMinute);
-    //   // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
-    //   // return true;
-    // });
-    // console.log("alerts", alerts);
-    // if ( alerts.length > 0 ) alert(alerts.join('\n'));
-  // });
+
   /**
    * フォームのクリア
    */
@@ -116,6 +66,10 @@
       $(this).val("").change().blur();
     });
   }
+  /**
+   * テキストエリアの中身を行の配列に変換
+   * @returns 行の配列
+   */
   function getTextAreaLines() {
     return $('#m510-worktime-textarea').val().split('\n');
   }
@@ -134,45 +88,50 @@
     // １行ずつ転記
     lines.some((line,index) => {
       if ( line.trim().length === 0 ) return;
-      var fields = line.split('\t');
-      var date = new Date(Date.parse(fields[0]));
-      if ( date.getTime() != thisDate.getTime() ) {
-        alerts.add(index,'日付が違います');
-        return;
-      }
-      var workTime = new Date(Date.parse(`${fields[0]} ${fields[5]}`));
-      var workHour = workTime.getHours();
-      var workMinute = workTime.getMinutes();
-      var projectCd = fields[7];
-      var task = fields[11];
-      // console.log(date, workTime, workHour, workMinute, projectCd, task);
-      // var rows = new ProjectRows(projectCd);
-      // TODO:プロジェクトが見つからない時はalertに追加
-      // var row = rows.findEmptyRow();
-      var row = findEmptyRow(projectCd);
-      if ( row === undefined || row.length == 0 ) {
-          alerts.add(index,'空行が見つかりませんでした。コピーボタンを押して追加してください');
-          return true;
-          // 空行が見つからない時はコピーボタンを押して行追加する
-          // pushCopy(projectCd,index);
-        // console.log("no empty rows found, clicking copy");
-        // row = rows.addEmptyRow();
-        // if ( row === undefined || row.length == 0 ) {
-          // alerts.add(index,'コピーボタンを押しても空行が追加されませんでした');
-          // return;
-        // }
-        // console.log("copy end");
-      }
-      console.log("found row", row);
-      // 転記
-      row.setValues(task,workHour,workMinute);
-      // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
+      CopyWorkTime(line);
       // return true;
     });
     console.log("alerts", alerts);
     if ( alerts.length > 0 ) alert(alerts.join('\n'));
     // TODO:出退勤時刻の転記
     return;
+  }
+  /**
+   * 1行の作業時間を転記
+   * @param {string} line 
+   */
+  function CopyWorkTime(line) {
+    var fields = line.split('\t');
+    var date = new Date(Date.parse(fields[0]));
+    if ( date.getTime() != thisDate.getTime() ) {
+      alerts.add(index,'日付が違います');
+      return;
+    }
+    var workTime = new Date(Date.parse(`${fields[0]} ${fields[5]}`));
+    var workHour = workTime.getHours();
+    var workMinute = workTime.getMinutes();
+    var projectCd = fields[7];
+    var task = fields[11];
+    // TODO:プロジェクトが見つからない時はalertに追加
+    var row = findEmptyRow(projectCd);
+    if ( row === undefined || row.length == 0 ) {
+        alerts.add(index,'空行が見つかりませんでした。コピーボタンを押して追加してください');
+        return true;
+        // 空行が見つからない時はコピーボタンを押して行追加する
+        // pushCopy(projectCd,index);
+      // console.log("no empty rows found, clicking copy");
+      // row = rows.addEmptyRow();
+      // if ( row === undefined || row.length == 0 ) {
+      // alerts.add(index,'コピーボタンを押しても空行が追加されませんでした');
+        // return;
+      // }
+      // console.log("copy end");
+    }
+    console.log("found row", row);
+    // 転記
+    row.setValues(task,workHour,workMinute);
+    // TODO:内訳時間を入れなかった行に対して「削除」ボタンを押す
+
   }
   /**
    * 空行を探す
@@ -256,6 +215,9 @@
       </td>
     `);
   }
+  /**
+   * @deprecated
+   */
   function addMultiCopyButtons() {
     $(`<input type=button value="5行コピー" name="copy5"/>`).appendTo(
       $('table[summary="管理単位"] td:has(input[type="button"][value="コピー"])')
@@ -267,9 +229,19 @@
       Cookies.set(cookieKeyCopySeqNo,$(this).siblings('input[name="seqNo"]').val(), {expires: 1});
     });
   }
+  /**
+   * 指定された管理単位NOのTRエレメントの集合を返す
+   * @param {string} projectCd 
+   * @returns Project's TR elements
+   */
   function getProjectRows(projectCd) {
     return $(`tr:contains(${projectCd})`, worktimeTable);
   }
+  /**
+   * 行のコピーボタンを押す
+   * @param {string} projectCd
+   * @param {number} index 
+   */
   function pushCopy(projectCd,index) {
     Cookies.set(cookieKeyCopyClicked,true, {expires: 1});
     Cookies.set(cookieKeyTextArea,$('m510-worktime-textarea').val(), {expires: 1});
