@@ -5,13 +5,17 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn } from 'react-data-grid';
 import dateEditor, { timeEditor } from './DateEditor';
-// TODO: Try DatePicker
-// https://reactdatepicker.com/
+import { datePickerEditor } from './DateEditor';
+// import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from "react-datepicker"
+import ja from 'date-fns/locale/ja';
+import "react-datepicker/dist/react-datepicker.css";
 
 interface Row {
   id: number;
   // workDate: string;
-  workDate: number;
+  // workDate: number;
+  workDate: Date;
   startTime: string;
   endTime: string;
   restTime: string;
@@ -33,10 +37,20 @@ const columns: readonly Column<Row>[] = [
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
   { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
     formatter(props) {
-      return <TimestampFormatter timestamp={props.row.workDate} />;
-    }
+      const d = props.row.workDate;
+      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+      // return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+      // return <TimestampFormatter timestamp={props.row.workDate.getTime()} />;
+    },
+    editorOptions: { renderFormatter: true}
   },
-  // { key: 'date', name: 'Date', width: 120, editor: dateEditor },
+  // { key: 'workDate', name: 'Date', width: 120, editor: datePickerEditor,
+  //   formatter(props) {
+  //     const d = props.row.workDate;
+  //     return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+  //   },
+  //   editorOptions: { renderFormatter: false}
+  // },
   { key: 'startTime', name: 'Start', width: 80, editor: timeEditor },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
   { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
@@ -52,18 +66,23 @@ function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date(Date.parse('2022-01-01')).getTime(), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
+    { id: 0, workDate: new Date(Date.parse('2022-01-03')), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  registerLocale("ja",ja);
   return (
     <div>
-      <DataGrid
-        columns={columns}
-        rows={rows}
-        onRowsChange={setRows}
-      />
+      <div>
+        <DataGrid
+          columns={columns}
+          rows={rows}
+          onRowsChange={setRows}
+          rowHeight={20}
+        />
+      </div>
       <div>
         <input type="date"
           // className={textEditorClassname}
@@ -81,6 +100,15 @@ function App() {
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
         <input type="text" value={dateDispValue}/>
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
+      </div>
+      <div>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          dateFormat="yyyy/MM/dd"
+          locale="ja"
+        />
+        <input type="text" value={startDate?.getTime()}/>
       </div>
     </div>
   );
