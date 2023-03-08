@@ -32,13 +32,19 @@ export default function dateEditor({ column, row, onRowChange, onClose } ) {
       // value={formatDate(row[column.key])} //OK
       value={((d)=>{
         console.log("row value",d);
-        return `${d.getFullYear()}-${('0'+d.getMonth()+1).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
+        const val = `${d.getFullYear()}-${('0'+(d.getMonth()+1)).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
+        console.log("month ",d.getMonth()+1);
+        console.log("month value",('0'+(d.getMonth()+1)).slice(-2));
+        // console.log("return value",val);
+        // return val;
+        return `${d.getFullYear()}-${('0'+(d.getMonth()+1)).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
+        // return `${d.getFullYear()}-${('0'+d.getMonth()+1).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
       })(row[column.key])}
       // onChange={(event) => onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })}
       onChange={(event) => {
         console.log("event value",event.target.value);
         onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })
-        console.log("after on RowChange value",row[column.key]);
+        // console.log("after on RowChange value",row[column.key]);
       }}
       onBlur={() => onClose(true)}
       autoFocus

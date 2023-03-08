@@ -98,7 +98,7 @@ function App() {
           autoFocus
         />
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
-        <input type="text" value={dateDispValue}/>
+        <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
       </div>
       <div>
@@ -108,7 +108,7 @@ function App() {
           dateFormat="yyyy/MM/dd"
           locale="ja"
         />
-        <input type="text" value={startDate?.getTime()}/>
+        <input type="text" value={startDate?.getTime()} readOnly />
       </div>
     </div>
   );
