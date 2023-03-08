@@ -42,7 +42,7 @@ const columns: readonly Column<Row>[] = [
       // return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
       // return <TimestampFormatter timestamp={props.row.workDate.getTime()} />;
     },
-    editorOptions: { renderFormatter: true}
+    // editorOptions: { renderFormatter: true}
   },
   // { key: 'workDate', name: 'Date', width: 120, editor: datePickerEditor,
   //   formatter(props) {

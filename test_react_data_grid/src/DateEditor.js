@@ -31,9 +31,15 @@ export default function dateEditor({ column, row, onRowChange, onClose } ) {
       // value={dateValue(row,column)} //OK
       // value={formatDate(row[column.key])} //OK
       value={((d)=>{
+        console.log("row value",d);
         return `${d.getFullYear()}-${('0'+d.getMonth()+1).slice(-2)}-${('0'+d.getDate()).slice(-2)}`;
       })(row[column.key])}
-      onChange={(event) => onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })}
+      // onChange={(event) => onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })}
+      onChange={(event) => {
+        console.log("event value",event.target.value);
+        onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })
+        console.log("after on RowChange value",row[column.key]);
+      }}
       onBlur={() => onClose(true)}
       autoFocus
     />
