@@ -5,11 +5,11 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn } from 'react-data-grid';
 import dateEditor, { timeEditor } from './DateEditor';
-import { datePickerEditor } from './DateEditor';
+// import { datePickerEditor } from './DateEditor';
 // import DatePicker from 'react-datepicker';
-import DatePicker, { registerLocale } from "react-datepicker"
-import ja from 'date-fns/locale/ja';
-import "react-datepicker/dist/react-datepicker.css";
+// import DatePicker, { registerLocale } from "react-datepicker"
+// import ja from 'date-fns/locale/ja';
+// import "react-datepicker/dist/react-datepicker.css";
 
 interface Row {
   id: number;
@@ -68,13 +68,13 @@ function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date(Date.parse('2022-01-03')), startTime: new Date(Date.parse('2022-01-03 09:00')), endTime: '10:00', restTime:'0:00' },
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: '10:00', restTime:'0:00' },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
   const [startDate, setStartDate] = useState<Date | null>(new Date());
-  registerLocale("ja",ja);
+  // registerLocale("ja",ja);
   return (
     <div>
       <div>
@@ -103,7 +103,7 @@ function App() {
         <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
       </div>
-      <div>
+      {/* <div>
         <DatePicker
           selected={startDate}
           onChange={(date) => setStartDate(date)}
@@ -111,7 +111,7 @@ function App() {
           locale="ja"
         />
         <input type="text" value={startDate?.getTime()} readOnly />
-      </div>
+      </div> */}
     </div>
   );
 }
