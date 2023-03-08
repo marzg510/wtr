@@ -16,7 +16,7 @@ interface Row {
   // workDate: string;
   // workDate: number;
   workDate: Date;
-  startTime: string;
+  startTime: Date;
   endTime: string;
   restTime: string;
   // workTime: Date;
@@ -39,10 +39,7 @@ const columns: readonly Column<Row>[] = [
     formatter(props) {
       const d = props.row.workDate;
       return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
-      // return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
-      // return <TimestampFormatter timestamp={props.row.workDate.getTime()} />;
     },
-    // editorOptions: { renderFormatter: true}
   },
   // { key: 'workDate', name: 'Date', width: 120, editor: datePickerEditor,
   //   formatter(props) {
@@ -51,7 +48,12 @@ const columns: readonly Column<Row>[] = [
   //   },
   //   editorOptions: { renderFormatter: false}
   // },
-  { key: 'startTime', name: 'Start', width: 80, editor: timeEditor },
+  { key: 'startTime', name: 'Start', width: 80, editor: timeEditor,
+    formatter(props) {
+      const t = props.row.startTime;
+      return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
+    },
+  },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
   { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
   { key: 'workTime', name: 'Working', width: 80 },
@@ -66,7 +68,7 @@ function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date(Date.parse('2022-01-03')), startTime: '09:00', endTime: '10:00', restTime:'0:00' },
+    { id: 0, workDate: new Date(Date.parse('2022-01-03')), startTime: new Date(Date.parse('2022-01-03 09:00')), endTime: '10:00', restTime:'0:00' },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [dateValue, setDateValue] = useState("");
