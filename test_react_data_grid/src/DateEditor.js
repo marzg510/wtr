@@ -14,7 +14,6 @@ export default function dateEditor({ column, row, onRowChange, onClose } ) {
       })(row[column.key])}
       onChange={(event) => onRowChange({ ...row, [column.key]: new Date(Date.parse(event.target.value)) })}
       onBlur={() => onClose(true)}
-      popperContainer={({children}) => createPortal(children,document.body)}
       autoFocus
     />
   );
@@ -55,6 +54,7 @@ export function datePickerEditor({ column, row, onRowChange, onClose } ) {
       // onBlur={() => onClose(true)}
       dateFormat="yyyy/MM/dd"
       locale="ja"
+      popperContainer={({children}) => createPortal(children,document.body)}
     />
     </div>
   );

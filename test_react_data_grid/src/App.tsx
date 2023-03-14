@@ -48,14 +48,14 @@ const columns: readonly Column<Row>[] = [
     },
     // editorOptions: { renderFormatter: false}
   },
-  { key: 'startTime', name: 'Start', width: 80, editor: timeEditor,
+  { key: 'startTime', name: 'Start', width: 80, editor: textEditor,
     formatter(props) {
       const t = props.row.startTime;
       return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
     },
   },
-  { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
-  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
+  { key: 'endTime', name: 'End', width: 80, editor: textEditor },
+  { key: 'restTime', name: 'Rest', width: 80, editor: textEditor },
   { key: 'workTime', name: 'Working', width: 80 },
   { key: 'work', name: 'Work', width: 300, editor: textEditor },
   { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
@@ -111,6 +111,9 @@ function App() {
           locale="ja"
         />
         <input type="text" value={startDate?.getTime()} readOnly />
+      </div>
+      <div>
+        <datePickerEditor />
       </div>
     </div>
   );
