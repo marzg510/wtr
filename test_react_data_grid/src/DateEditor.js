@@ -26,6 +26,7 @@ export function timeEditor({ column, row, onRowChange, onClose } ) {
       // value={row[column.key]}
       value={((t)=>{
         console.log("time value",t);
+        console.log("time type",typeof(t));
         return `${('0'+t.getHours()).slice(-2)}:${('0'+t.getMinutes()).slice(-2)}`;
       })(row[column.key])}
       step={900}
