@@ -59,7 +59,7 @@ const columns: readonly Column<Row>[] = [
   { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
   { key: 'testDate', name: 'testDate', width: 120, editor: dateEditor,
     formatter(props) {
-      const d = props.row.workDate;
+      const d = props.row.testDate;
       return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
     },
   },
