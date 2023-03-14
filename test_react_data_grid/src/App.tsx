@@ -5,11 +5,6 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn } from 'react-data-grid';
 import dateEditor, { timeEditor } from './DateEditor';
-import { datePickerEditor } from './DateEditor';
-// import DatePicker from 'react-datepicker';
-import DatePicker, { registerLocale } from "react-datepicker"
-import ja from 'date-fns/locale/ja';
-import "react-datepicker/dist/react-datepicker.css";
 
 interface Row {
   id: number;
@@ -36,18 +31,11 @@ const columns: readonly Column<Row>[] = [
     cellClass: "mycell"
   },
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
-  // { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
-  //   formatter(props) {
-  //     const d = props.row.workDate;
-  //     return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
-  //   },
-  // },
-  { key: 'workDate', name: 'Date', width: 120, editor: datePickerEditor,
+  { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
     formatter(props) {
       const d = props.row.workDate;
       return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
     },
-    // editorOptions: { renderFormatter: false}
   },
   { key: 'startTime', name: 'Start', width: 80, editor: textEditor,
     formatter(props) {
@@ -85,8 +73,6 @@ function App() {
   ]);
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  registerLocale("ja",ja);
   return (
     <div>
       <div>
@@ -114,15 +100,6 @@ function App() {
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
         <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
-      </div>
-      <div>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          dateFormat="yyyy/MM/dd"
-          locale="ja"
-        />
-        <input type="text" value={startDate?.getTime()} readOnly />
       </div>
     </div>
   );

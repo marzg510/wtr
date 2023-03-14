@@ -1,8 +1,4 @@
 import textEditorClassname from 'react-data-grid';
-import DatePicker, { registerLocale } from "react-datepicker"
-import ja from 'date-fns/locale/ja';
-import "react-datepicker/dist/react-datepicker.css";
-import {createPortal} from 'react-dom';
 
 export default function dateEditor({ column, row, onRowChange, onClose } ) {
   return (
@@ -41,22 +37,5 @@ export function timeEditor({ column, row, onRowChange, onClose } ) {
       onBlur={() => onClose(true)}
       autoFocus
     />
-  );
-}
-
-export function datePickerEditor({ column, row, onRowChange, onClose } ) {
-  registerLocale("ja",ja);
-  return (
-    <div tabIndex={-1} >
-    <DatePicker
-      className={textEditorClassname}
-      selected={row[column.key]}
-      onChange={(event) => onRowChange({ ...row, [column.key]: event.target.value })}
-      // onBlur={() => onClose(true)}
-      dateFormat="yyyy/MM/dd"
-      locale="ja"
-      popperContainer={({children}) => createPortal(children,document.body)}
-    />
-    </div>
   );
 }
