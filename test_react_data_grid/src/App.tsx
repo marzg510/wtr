@@ -19,6 +19,7 @@ interface Row {
   startTime: Date;
   endTime: string;
   restTime: string;
+  testDate: Date;
   // workTime: Date;
   // work: string;
 }
@@ -54,21 +55,27 @@ const columns: readonly Column<Row>[] = [
       return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
     },
   },
-  { key: 'endTime', name: 'End', width: 80, editor: textEditor },
-  { key: 'restTime', name: 'Rest', width: 80, editor: textEditor },
-  { key: 'workTime', name: 'Working', width: 80 },
-  { key: 'work', name: 'Work', width: 300, editor: textEditor },
-  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
-  { key: 'projectName', name: 'ProjectName', width: 300, editor: textEditor },
-  { key: 'phase', name: 'phase', width: 300, editor: textEditor },
-  { key: 'task', name: 'task', width: 300, editor: textEditor },
+  { key: 'endTime', name: 'End', width: 80, editor: timeEditor },
+  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
+  { key: 'testDate', name: 'testDate', width: 120, editor: dateEditor,
+    formatter(props) {
+      const d = props.row.testDate;
+      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+    },
+  },
+  // { key: 'workTime', name: 'Working', width: 80 },
+  // { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  // { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  // { key: 'projectName', name: 'ProjectName', width: 300, editor: textEditor },
+  // { key: 'phase', name: 'phase', width: 300, editor: textEditor },
+  // { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
 function App() {
   const [rows,setRows] = useState([
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: '10:00', restTime:'0:00' },
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: '10:00', restTime:'0:00', testDate: new Date('2023-05-01') },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [dateValue, setDateValue] = useState("");
