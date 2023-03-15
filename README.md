@@ -11,7 +11,8 @@ yarn tauri dev
 
 ## Link Repos
 
-[tauri_test](https://github.com/marzg510/tauri_test)
+- [react-data-grid](https://github.com/adazzle/react-data-grid)
+- [tauri_test](https://github.com/marzg510/tauri_test)
 
 ## 開発環境構築メモ
 
