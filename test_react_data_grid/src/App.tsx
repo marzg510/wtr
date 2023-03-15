@@ -12,12 +12,12 @@ interface Row {
   workDate: Date;
   startTime: Date;
   endTime: Date;
-  restTime: Date;
-  workTime: Date;
-  // work: string;
-  // projectAlias: string;
-  // projectCd: string;
-  // task: string;
+  restTime: number;
+  workTime: number | null;
+  work: string;
+  projectAlias: string;
+  projectCd: string;
+  task: string;
 }
 const dateFormatter = new Intl.DateTimeFormat(navigator.language);
 function TimestampFormatter({ timestamp }: { timestamp: number }) {
@@ -58,29 +58,23 @@ const columns: readonly Column<Row>[] = [
       return (<TimeFormatter time={props.row.endTime} />);
     },
   },
-  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor,
-    formatter(props) { return (<TimeFormatter time={props.row.restTime} />); },
+  { key: 'restTime', name: 'Rest', width: 80, editor: textEditor,
+    // formatter(props) { return (<TimeFormatter time={props.row.restTime} />); },
   },
   { key: 'workTime', name: 'Working', width: 80,
-    formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
-    // formatter(props) {
-    //   const wt = props.row.endTime.getTime()
-    //            - props.row.startTime.getTime()
-    //            - props.row.restTime.getTime();
-    //   return (<TimeFormatter time={props.row.restTime} />);
-    // },
+    // formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
   },
-  // { key: 'work', name: 'Work', width: 300, editor: textEditor },
-  // { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
-  // { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
-  // { key: 'task', name: 'task', width: 300, editor: textEditor },
+  { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
 function App() {
   const [rows,setRows] = useState<Row[]>([
-    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'),
-      // work: '' , projectAlias: '', projectCd: '', task: '' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+      work: '' , projectAlias: '', projectCd: '', task: '' },
+    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
@@ -92,45 +86,16 @@ function App() {
         return rows.map((oldRow, oldIdx)=>{
           if ( oldIdx === i) {
             console.log("changed index", i)
-            console.log( "times", oldRow.endTime.getTime() , oldRow.startTime.getTime() , oldRow.restTime.getTime());
-            const time = oldRow.endTime.getTime() - oldRow.startTime.getTime() - oldRow.restTime.getTime();
+            console.log( "times", oldRow.endTime.getTime() , oldRow.startTime.getTime() , oldRow.restTime);
+            const time = (oldRow.endTime.getTime() - oldRow.startTime.getTime()) - oldRow.restTime * 3600 * 1000;
             console.log( "time", time);
-            return { ...oldRow, workTime: new Date(time) }
+            return { ...oldRow, workTime: time / 3600 / 1000 }
             // return { ...oldRow, workTime: new Date(oldRow.endTime.getTime() - oldRow.startTime.getTime() - oldRow.restTime.getTime()) }
           }
           return oldRow;
         });
       });
     })
-  }
-  const onChangeRows2 = (rows: Row[], data: RowsChangeData<Row>) => {
-    console.log("onChangeRows:data",data);
-    // setRows((oldRows) => {
-    //   return oldRows.map((oldRow, oldIdx)=> {
-    //     data.indexes.map((i)=> {
-    //       if ( oldIdx === i ) {
-    //         return { ...oldRow, workTime: new Date(oldRow.endTime.getTime() - oldRow.startTime.getTime() - oldRow.restTime.getTime()) }
-    //       }
-    //     })
-    //   });
-    // });
-    // if ( data.column.key === "startTime" ) {
-    // }
-  }
-  const onChangeRows = (rows: Row[], data: RowsChangeData<Row>) => {
-    console.log("onChangeRows:data",data);
-    if ( data.column.key === "startTime" ||
-         data.column.key === "endTime" ||
-         data.column.key === "restime" ) {
-      console.log("onChangeRows:worktime update");
-      data.indexes.forEach((v)=>{
-        const r = rows[v];
-        r.workTime = new Date(r.endTime.getTime() - r.startTime.getTime() - r.restTime.getTime());
-        // r.work = "working!"+r.workTime.getTime();
-        console.log("onChangeRows:worktime updated", rows[v]);
-      })
-    }
-    setRows({...rows});
   }
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
@@ -146,25 +111,7 @@ function App() {
           columns={columns}
           rows={rows}
           // onRowsChange={setRows}
-          // onRowsChange={onChangeRows}
-          // onRowsChange={onChangeRows2}
           onRowsChange={onChangeRows3}
-          // onRowsChange={(rows: Row[], data: RowsChangeData<Row>)=>{
-          //   data.indexes.forEach(i => {
-          //     setRows((oldRows)=>{
-          //       return oldRows.map((oldRow, oldIdx)=>{
-          //         // return oldRow;
-          //         // return oldRows;
-          //         if ( oldIdx === i) {
-          //           console.log("changed index", i)
-          //           return { ...oldRow, workTime: new Date(Date.now())};
-          //         }
-          //         return oldRow;
-          //       });
-          //     });
-          //   })
-          // }
-          // }
           rowHeight={20}
         />
       </div>
