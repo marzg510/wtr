@@ -8,23 +8,28 @@ import dateEditor, { timeEditor } from './DateEditor';
 
 interface Row {
   id: number;
-  // workDate: string;
-  // workDate: number;
   workDate: Date;
   startTime: Date;
   endTime: Date;
-  restTime: string;
-  testDate: Date;
-  // workTime: Date;
-  // work: string;
+  restTime: Date;
+  workTime: Date;
+  work: string;
+  projectAlias: string;
+  projectCd: string;
+  task: string;
 }
 const dateFormatter = new Intl.DateTimeFormat(navigator.language);
 function TimestampFormatter({ timestamp }: { timestamp: number }) {
   return <>{dateFormatter.format(timestamp)}</>;
 }
+function DateFormatter({ date }: { date: Date }) {
+  return ( <>{date.getFullYear()}/{('0'+(date.getMonth()+1)).slice(-2)}/{('0'+date.getDate()).slice(-2)}</> );
+}
+function TimeFormatter({ time }: { time: Date }) {
+  return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
+}
 
 const columns: readonly Column<Row>[] = [
-// const columns = [
   {
     ...SelectColumn,
     headerCellClass: "mycell",
@@ -33,42 +38,49 @@ const columns: readonly Column<Row>[] = [
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
   { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
     formatter(props) {
-      const d = props.row.workDate;
-      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+      // const date = props.row.workDate;
+      // return ( <>{date.getFullYear()}/{date.getMonth()+1}/{date.getDate()}</> );
+      return (<DateFormatter date={props.row.workDate} />);
     },
   },
-  { key: 'startTime', name: 'Start', width: 80, editor: textEditor,
+  { key: 'startTime', name: 'Start', width: 60, editor: timeEditor,
     formatter(props) {
-      const t = props.row.startTime;
-      return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
+      // const t = props.row.startTime;
+      // return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
+      return (<TimeFormatter time={props.row.startTime} />);
     },
   },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor,
     formatter(props) {
-      const t = props.row.endTime;
-      return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
+      // const t = props.row.endTime;
+      // return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
+      return (<TimeFormatter time={props.row.endTime} />);
     },
   },
-  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
-  { key: 'testDate', name: 'testDate', width: 120, editor: dateEditor,
+  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor,
+    formatter(props) { return (<TimeFormatter time={props.row.restTime} />); },
+  },
+  { key: 'workTime', name: 'Working', width: 80,
     formatter(props) {
-      const d = props.row.testDate;
-      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
+      const wt = props.row.endTime.getTime()
+               - props.row.startTime.getTime()
+               - props.row.restTime.getTime();
+      return (<TimeFormatter time={props.row.restTime} />);
     },
   },
-  // { key: 'workTime', name: 'Working', width: 80 },
-  // { key: 'work', name: 'Work', width: 300, editor: textEditor },
-  // { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
-  // { key: 'projectName', name: 'ProjectName', width: 300, editor: textEditor },
-  // { key: 'phase', name: 'phase', width: 300, editor: textEditor },
-  // { key: 'task', name: 'task', width: 300, editor: textEditor },
+  { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
 function App() {
   const [rows,setRows] = useState([
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'),
+      work: '' , projectAlias: '', projectCd: '', task: '' },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:'0:00', testDate: new Date('2023-05-01') },
+    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [dateValue, setDateValue] = useState("");
