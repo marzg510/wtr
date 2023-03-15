@@ -3,7 +3,7 @@ import './App.css';
 import { useState } from 'react';
 import 'react-data-grid/lib/styles.css';
 import DataGrid, { textEditor } from 'react-data-grid';
-import { Column, SelectColumn } from 'react-data-grid';
+import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 import dateEditor, { timeEditor } from './DateEditor';
 
 interface Row {
@@ -83,6 +83,21 @@ function App() {
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
+  const onChangeRows = (rows: Row[], data: RowsChangeData<Row>) => {
+    console.log("onChangeRows:data",data);
+    if ( data.column.key === "startTime" ||
+         data.column.key === "endTime" ||
+         data.column.key === "restime" ) {
+      console.log("onChangeRows:worktime update");
+      data.indexes.forEach((v)=>{
+        const r = rows[v];
+        r.workTime = new Date(r.endTime.getTime() - r.startTime.getTime() - r.restTime.getTime());
+        r.work = "working!"+r.workTime.getTime();
+        console.log("onChangeRows:worktime updated", rows[v]);
+      })
+    }
+    setRows(rows);
+  }
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
   return (
@@ -91,7 +106,8 @@ function App() {
         <DataGrid
           columns={columns}
           rows={rows}
-          onRowsChange={setRows}
+          // onRowsChange={setRows}
+          onRowsChange={onChangeRows}
           rowHeight={20}
         />
       </div>
