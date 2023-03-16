@@ -58,7 +58,7 @@ const columns: readonly Column<Row>[] = [
       return (<TimeFormatter time={props.row.endTime} />);
     },
   },
-  { key: 'restTime', name: 'Rest', width: 80, editor: textEditor,
+  { key: 'restTime', name: 'Rest', width: 80, editor: intervalEditor,
     // formatter(props) { return (<TimeFormatter time={props.row.restTime} />); },
   },
   { key: 'workTime', name: 'Working', width: 80,
@@ -87,9 +87,13 @@ function App() {
           if ( oldIdx === i) {
             console.log("changed index", i)
             console.log( "times", oldRow.endTime.getTime() , oldRow.startTime.getTime() , oldRow.restTime);
-            const time = (oldRow.endTime.getTime() - oldRow.startTime.getTime()) - oldRow.restTime * 3600 * 1000;
+            const start = Math.floor(oldRow.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+            const end   = Math.floor(oldRow.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+            console.log( "floor start,end", start, end);
+            if ( start >= end ) return oldRow;  // startのほうが大きければ変更しない
+            const time = (end - start) - oldRow.restTime;
             console.log( "time", time);
-            return { ...oldRow, workTime: time / 3600 / 1000 }
+            return { ...oldRow, workTime: time }
             // return { ...oldRow, workTime: new Date(oldRow.endTime.getTime() - oldRow.startTime.getTime() - oldRow.restTime.getTime()) }
           }
           return oldRow;
