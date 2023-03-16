@@ -10,40 +10,6 @@ import { formatDate } from './DateEditor';
 import { formatDiagnosticsWithColorAndContext } from 'typescript';
 import { Row } from'./types'
 
-// interface Row {
-//   id: number;
-//   workDate: Date;
-//   startTime: Date;
-//   endTime: Date;
-//   restTime: number;
-//   workTime: number | null;
-//   work: string;
-//   projectAlias: string;
-//   projectCd: string;
-//   task: string;
-// }
-// const dateFormatter = new Intl.DateTimeFormat(navigator.language);
-// function TimestampFormatter({ timestamp }: { timestamp: number }) {
-//   return <>{dateFormatter.format(timestamp)}</>;
-// }
-// function DateFormatter({ date }: { date: Date }) {
-//   return ( <>{date.getFullYear()}/{('0'+(date.getMonth()+1)).slice(-2)}/{('0'+date.getDate()).slice(-2)}</> );
-// }
-// function TimeFormatter({ time }: { time: Date }) {
-//   return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
-// }
-// function IntervalFormatter({ interval }:{ interval:number}) {
-//   // return interval ? ( <>{interval.toFixed(1)}</> ) : null;
-//   console.log("interval:",interval,typeof(interval));
-//   return <>{interval.toFixed(1)}h</>;
-// }
-// function IntervalFormatter2<Row>(props: FormatterProps<Row>) {
-//   const v = props.row[props.column.key as keyof Row] as number;
-//   return v ? ( <>{v.toFixed(1)}</> ) : null;
-//   // console.log("interval:",interval,typeof(interval));
-//   // return <>{interval.toFixed(1)}h</>;
-// }
-
 const columns: readonly Column<Row>[] = [
   {
     ...SelectColumn,
