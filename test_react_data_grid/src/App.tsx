@@ -2,9 +2,9 @@ import './App.css';
 
 import { useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-import DataGrid, { textEditor } from 'react-data-grid';
+import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
-import dateEditor, { timeEditor } from './DateEditor';
+import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
 import { formatDiagnosticsWithColorAndContext } from 'typescript';
 
 interface Row {
@@ -29,6 +29,17 @@ function DateFormatter({ date }: { date: Date }) {
 function TimeFormatter({ time }: { time: Date }) {
   return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
 }
+function IntervalFormatter({ interval }:{ interval:number}) {
+  // return interval ? ( <>{interval.toFixed(1)}</> ) : null;
+  console.log("interval:",interval,typeof(interval));
+  return <>{interval.toFixed(1)}h</>;
+}
+function IntervalFormatter2<Row>(props: FormatterProps<Row>) {
+  const v = props.row[props.column.key as keyof Row] as number;
+  return v ? ( <>{v.toFixed(1)}</> ) : null;
+  // console.log("interval:",interval,typeof(interval));
+  // return <>{interval.toFixed(1)}h</>;
+}
 
 const columns: readonly Column<Row>[] = [
   {
@@ -38,28 +49,17 @@ const columns: readonly Column<Row>[] = [
   },
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
   { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
-    formatter(props) {
-      // const date = props.row.workDate;
-      // return ( <>{date.getFullYear()}/{date.getMonth()+1}/{date.getDate()}</> );
-      return (<DateFormatter date={props.row.workDate} />);
-    },
+    formatter(props) { return (<DateFormatter date={props.row.workDate} />); },
   },
   { key: 'startTime', name: 'Start', width: 60, editor: timeEditor,
-    formatter(props) {
-      // const t = props.row.startTime;
-      // return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
-      return (<TimeFormatter time={props.row.startTime} />);
-    },
+    formatter(props) { return (<TimeFormatter time={props.row.startTime} />); },
   },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor,
-    formatter(props) {
-      // const t = props.row.endTime;
-      // return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
-      return (<TimeFormatter time={props.row.endTime} />);
-    },
+    formatter(props) { return (<TimeFormatter time={props.row.endTime} />); },
   },
   { key: 'restTime', name: 'Rest', width: 80, editor: intervalEditor,
-    // formatter(props) { return (<TimeFormatter time={props.row.restTime} />); },
+    // formatter(props) { return (<IntervalFormatter interval={props.row.restTime} />); },
+    formatter : IntervalFormatter2
   },
   { key: 'workTime', name: 'Working', width: 80,
     // formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
@@ -108,6 +108,7 @@ function App() {
     { name: "item 2", done: true },
     { name: "item 3", done: false }
   ]);
+  const [numValue, setNumValue] = useState<number>(0.0);
   return (
     <div>
       <div>
@@ -181,6 +182,17 @@ function App() {
             );
           })}
         </ul>
+      </div>
+      <div>
+        <input type="number" step="0.1"
+          max="9.9" min="0.0"
+          value={numValue}
+          onChange={(event) => {
+            console.log(event.target.value);
+            setNumValue(parseFloat(event.target.value));
+          }}
+          autoFocus
+        />
       </div>
     </div>
   );
