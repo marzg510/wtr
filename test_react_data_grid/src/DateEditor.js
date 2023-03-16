@@ -39,3 +39,16 @@ export function timeEditor({ column, row, onRowChange, onClose } ) {
     />
   );
 }
+
+export function intervalEditor({ column, row, onRowChange, onClose } ) {
+  return (
+    <input type="number"
+      className={textEditorClassname}
+      value={row[column.key]}
+      step={0.1} max={9.9} min={0.0}
+      onChange={(event) => { onRowChange({ ...row, [column.key]: parseFloat(event.target.value) }) }}
+      onBlur={() => onClose(true)}
+      autoFocus
+    />
+  );
+}

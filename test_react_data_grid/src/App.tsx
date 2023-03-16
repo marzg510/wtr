@@ -2,29 +2,46 @@ import './App.css';
 
 import { useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-import DataGrid, { textEditor } from 'react-data-grid';
-import { Column, SelectColumn } from 'react-data-grid';
-import dateEditor, { timeEditor } from './DateEditor';
+import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
+import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
+import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
+import { formatDiagnosticsWithColorAndContext } from 'typescript';
 
 interface Row {
   id: number;
-  // workDate: string;
-  // workDate: number;
   workDate: Date;
   startTime: Date;
   endTime: Date;
-  restTime: string;
-  testDate: Date;
-  // workTime: Date;
-  // work: string;
+  restTime: number;
+  workTime: number | null;
+  work: string;
+  projectAlias: string;
+  projectCd: string;
+  task: string;
 }
 const dateFormatter = new Intl.DateTimeFormat(navigator.language);
 function TimestampFormatter({ timestamp }: { timestamp: number }) {
   return <>{dateFormatter.format(timestamp)}</>;
 }
+function DateFormatter({ date }: { date: Date }) {
+  return ( <>{date.getFullYear()}/{('0'+(date.getMonth()+1)).slice(-2)}/{('0'+date.getDate()).slice(-2)}</> );
+}
+function TimeFormatter({ time }: { time: Date }) {
+  return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
+}
+function IntervalFormatter({ interval }:{ interval:number}) {
+  // return interval ? ( <>{interval.toFixed(1)}</> ) : null;
+  console.log("interval:",interval,typeof(interval));
+  return <>{interval.toFixed(1)}h</>;
+}
+function IntervalFormatter2<Row>(props: FormatterProps<Row>) {
+  const v = props.row[props.column.key as keyof Row] as number;
+  return v ? ( <>{v.toFixed(1)}</> ) : null;
+  // console.log("interval:",interval,typeof(interval));
+  // return <>{interval.toFixed(1)}h</>;
+}
 
 const columns: readonly Column<Row>[] = [
-// const columns = [
   {
     ...SelectColumn,
     headerCellClass: "mycell",
@@ -32,54 +49,76 @@ const columns: readonly Column<Row>[] = [
   },
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
   { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
-    formatter(props) {
-      const d = props.row.workDate;
-      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
-    },
+    formatter(props) { return (<DateFormatter date={props.row.workDate} />); },
   },
-  { key: 'startTime', name: 'Start', width: 80, editor: textEditor,
-    formatter(props) {
-      const t = props.row.startTime;
-      return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
-    },
+  { key: 'startTime', name: 'Start', width: 60, editor: timeEditor,
+    formatter(props) { return (<TimeFormatter time={props.row.startTime} />); },
   },
   { key: 'endTime', name: 'End', width: 80, editor: timeEditor,
-    formatter(props) {
-      const t = props.row.endTime;
-      return ( <>{t.getHours()}:{('0'+t.getMinutes()).slice(-2)}</> );
-    },
+    formatter(props) { return (<TimeFormatter time={props.row.endTime} />); },
   },
-  { key: 'restTime', name: 'Rest', width: 80, editor: timeEditor },
-  { key: 'testDate', name: 'testDate', width: 120, editor: dateEditor,
-    formatter(props) {
-      const d = props.row.testDate;
-      return ( <>{d.getFullYear()}/{d.getMonth()+1}/{d.getDate()}</> );
-    },
+  { key: 'restTime', name: 'Rest', width: 80, editor: intervalEditor,
+    // formatter(props) { return (<IntervalFormatter interval={props.row.restTime} />); },
+    formatter : IntervalFormatter2
   },
-  // { key: 'workTime', name: 'Working', width: 80 },
-  // { key: 'work', name: 'Work', width: 300, editor: textEditor },
-  // { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
-  // { key: 'projectName', name: 'ProjectName', width: 300, editor: textEditor },
-  // { key: 'phase', name: 'phase', width: 300, editor: textEditor },
-  // { key: 'task', name: 'task', width: 300, editor: textEditor },
+  { key: 'workTime', name: 'Working', width: 80,
+    // formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
+  },
+  { key: 'work', name: 'Work', width: 300, editor: textEditor },
+  { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
 function App() {
-  const [rows,setRows] = useState([
+  const [rows,setRows] = useState<Row[]>([
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+      work: '' , projectAlias: '', projectCd: '', task: '' },
+    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:'0:00', testDate: new Date('2023-05-01') },
+    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
+  const onChangeRows3 = (rows: Row[], data: RowsChangeData<Row>) => {
+    data.indexes.forEach(i => {
+      setRows(()=>{
+        return rows.map((oldRow, oldIdx)=>{
+          if ( oldIdx === i) {
+            console.log("changed index", i)
+            console.log( "times", oldRow.endTime.getTime() , oldRow.startTime.getTime() , oldRow.restTime);
+            const start = Math.floor(oldRow.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+            const end   = Math.floor(oldRow.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+            console.log( "floor start,end", start, end);
+            // if ( start >= end ) {
+              // startのほうが大きければ変更しない
+              // return { ...oldRow, };
+            // }
+            const time = (end - start) - oldRow.restTime;
+            console.log( "time", time);
+            return { ...oldRow, workTime: time }
+          }
+          return oldRow;
+        });
+      });
+    })
+  }
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
+  const [items, updateItems] = useState([
+    { name: "item 1", done: false },
+    { name: "item 2", done: true },
+    { name: "item 3", done: false }
+  ]);
+  const [numValue, setNumValue] = useState<number>(0.0);
   return (
     <div>
       <div>
         <DataGrid
           columns={columns}
           rows={rows}
-          onRowsChange={setRows}
+          // onRowsChange={setRows}
+          onRowsChange={onChangeRows3}
           rowHeight={20}
         />
       </div>
@@ -100,6 +139,62 @@ function App() {
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
         <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
+      </div>
+      <div>
+        {/* see https://qiita.com/daitai-daidai/items/5752b308e5e0f9457352 */}
+        <h2>Todo list</h2>
+        <ul>
+          {items.map((item, idx) => {
+            return (
+              <li key={idx}>
+                <span>{`${item.name} ${item.done} `}</span>
+                <button
+                  onClick={() => {
+                    updateItems((oldItems) => {
+                      return oldItems.map((oldItem, oldIdx) => {
+                        if (oldIdx === idx) {
+                          return { ...oldItem, done: !oldItem.done };
+                        }
+                        return oldItem;
+                      });
+                    });
+                  }}
+                  // NG
+                  // onClick={() => {
+                  //   updateItems((oldItems) => {
+                  //     // 新しいオブジェクトを作成
+                  //     oldItems[idx] = {
+                  //       ...oldItems[idx],
+                  //       done: !oldItems[idx].done
+                  //     };
+                  //     return oldItems;
+                  //   });
+                  // }}
+                  // NG
+                  // onClick={() => {
+                  //   updateItems((oldItems) => {
+                  //     oldItems[idx].done = !oldItems[idx].done;
+                  //     return oldItems;
+                  //   });
+                  // }}
+                  >
+                  change
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <div>
+        <input type="number" step="0.1"
+          max="9.9" min="0.0"
+          value={numValue}
+          onChange={(event) => {
+            console.log(event.target.value);
+            setNumValue(parseFloat(event.target.value));
+          }}
+          autoFocus
+        />
       </div>
     </div>
   );
