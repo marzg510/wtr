@@ -1,9 +1,6 @@
 import textEditorClassname, { EditorProps } from 'react-data-grid';
-import type { Row } from './types'
 
-// import { FormatterProps } from 'react-data-grid';
 import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
-import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 
 export function formatDate(d: Date, sep:string):string {
   return `${d.getFullYear()}${sep}${('0'+(d.getMonth()+1)).slice(-2)}${sep}${('0'+d.getDate()).slice(-2)}`;
@@ -15,10 +12,7 @@ export function TimeFormatter({ time }: { time: Date }) {
   // return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
   return ( <>{formatTime(time)}</> );
 }
-export function IntervalFormatter({ interval }:{ interval:number}) {
-  return <>{interval.toFixed(1)}h</>;
-}
-export function IntervalFormatter2<Row>(props: FormatterProps<Row>) {
+export function IntervalFormatter<Row>(props: FormatterProps<Row>) {
   const v = props.row[props.column.key as keyof Row] as number;
   return v ? ( <>{v.toFixed(1)}</> ) : null;
 }

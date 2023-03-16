@@ -5,7 +5,7 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
-import { TimeFormatter, IntervalFormatter2 } from './DateEditor';
+import { TimeFormatter, IntervalFormatter } from './DateEditor';
 import { formatDate } from './DateEditor';
 import { formatDiagnosticsWithColorAndContext } from 'typescript';
 import { Row } from'./types'
@@ -27,15 +27,14 @@ const columns: readonly Column<Row>[] = [
     formatter(props) { return (<TimeFormatter time={props.row.endTime} />); },
   },
   { key: 'restTime', name: 'Rest', width: 80, editor: intervalEditor,
-    // formatter(props) { return (<IntervalFormatter interval={props.row.restTime} />); },
-    formatter : IntervalFormatter2
+    formatter : IntervalFormatter
   },
   { key: 'workTime', name: 'Working', width: 80,
     // formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
   },
   { key: 'work', name: 'Work', width: 300, editor: textEditor },
   { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
-  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10 },
   { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
