@@ -90,11 +90,13 @@ function App() {
             const start = Math.floor(oldRow.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             const end   = Math.floor(oldRow.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             console.log( "floor start,end", start, end);
-            if ( start >= end ) return oldRow;  // startのほうが大きければ変更しない
+            // if ( start >= end ) {
+              // startのほうが大きければ変更しない
+              // return { ...oldRow, };
+            // }
             const time = (end - start) - oldRow.restTime;
             console.log( "time", time);
             return { ...oldRow, workTime: time }
-            // return { ...oldRow, workTime: new Date(oldRow.endTime.getTime() - oldRow.startTime.getTime() - oldRow.restTime.getTime()) }
           }
           return oldRow;
         });
