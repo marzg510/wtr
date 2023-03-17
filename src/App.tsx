@@ -5,41 +5,10 @@ import 'react-data-grid/lib/styles.css';
 import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
+import { TimeFormatter, IntervalFormatter } from './DateEditor';
+import { formatDate } from './DateEditor';
 import { formatDiagnosticsWithColorAndContext } from 'typescript';
-
-interface Row {
-  id: number;
-  workDate: Date;
-  startTime: Date;
-  endTime: Date;
-  restTime: number;
-  workTime: number | null;
-  work: string;
-  projectAlias: string;
-  projectCd: string;
-  task: string;
-}
-const dateFormatter = new Intl.DateTimeFormat(navigator.language);
-function TimestampFormatter({ timestamp }: { timestamp: number }) {
-  return <>{dateFormatter.format(timestamp)}</>;
-}
-function DateFormatter({ date }: { date: Date }) {
-  return ( <>{date.getFullYear()}/{('0'+(date.getMonth()+1)).slice(-2)}/{('0'+date.getDate()).slice(-2)}</> );
-}
-function TimeFormatter({ time }: { time: Date }) {
-  return ( <>{('0'+time.getHours()).slice(-2)}:{('0'+time.getMinutes()).slice(-2)}</> );
-}
-function IntervalFormatter({ interval }:{ interval:number}) {
-  // return interval ? ( <>{interval.toFixed(1)}</> ) : null;
-  console.log("interval:",interval,typeof(interval));
-  return <>{interval.toFixed(1)}h</>;
-}
-function IntervalFormatter2<Row>(props: FormatterProps<Row>) {
-  const v = props.row[props.column.key as keyof Row] as number;
-  return v ? ( <>{v.toFixed(1)}</> ) : null;
-  // console.log("interval:",interval,typeof(interval));
-  // return <>{interval.toFixed(1)}h</>;
-}
+import { Row } from'./types'
 
 const columns: readonly Column<Row>[] = [
   {
@@ -49,7 +18,7 @@ const columns: readonly Column<Row>[] = [
   },
   { key: 'id', name: 'ID', width: 10, cellClass: "mycell" },
   { key: 'workDate', name: 'Date', width: 120, editor: dateEditor,
-    formatter(props) { return (<DateFormatter date={props.row.workDate} />); },
+    formatter(props) { return (<>{formatDate(props.row.workDate,'/')}</>); },
   },
   { key: 'startTime', name: 'Start', width: 60, editor: timeEditor,
     formatter(props) { return (<TimeFormatter time={props.row.startTime} />); },
@@ -58,15 +27,14 @@ const columns: readonly Column<Row>[] = [
     formatter(props) { return (<TimeFormatter time={props.row.endTime} />); },
   },
   { key: 'restTime', name: 'Rest', width: 80, editor: intervalEditor,
-    // formatter(props) { return (<IntervalFormatter interval={props.row.restTime} />); },
-    formatter : IntervalFormatter2
+    formatter : IntervalFormatter
   },
   { key: 'workTime', name: 'Working', width: 80,
     // formatter(props) { return (<TimeFormatter time={props.row.workTime} />); },
   },
   { key: 'work', name: 'Work', width: 300, editor: textEditor },
   { key: 'projectAlias', name: 'ProjectAlias', width: 300, editor: textEditor },
-  { key: 'projectCd', name: 'ProjectCD', width: 10, editor: textEditor },
+  { key: 'projectCd', name: 'ProjectCD', width: 10 },
   { key: 'task', name: 'task', width: 300, editor: textEditor },
 ];
 
