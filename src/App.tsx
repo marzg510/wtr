@@ -1,6 +1,6 @@
 import './App.css';
 
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import 'react-data-grid/lib/styles.css';
 import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
@@ -48,7 +48,8 @@ function App() {
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
-  const onChangeRows3 = (rows: Row[], data: RowsChangeData<Row>) => {
+  const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
+  const onChangeRows = (rows: Row[], data: RowsChangeData<Row>) => {
     data.indexes.forEach(i => {
       setRows(()=>{
         return rows.map((oldRow, oldIdx)=>{
@@ -58,10 +59,6 @@ function App() {
             const start = Math.floor(oldRow.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             const end   = Math.floor(oldRow.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             console.log( "floor start,end", start, end);
-            // if ( start >= end ) {
-              // startのほうが大きければ変更しない
-              // return { ...oldRow, };
-            // }
             const time = (end - start) - oldRow.restTime;
             console.log( "time", time);
             return { ...oldRow, workTime: time }
@@ -71,6 +68,17 @@ function App() {
       });
     })
   }
+  // function insertRow(insertRowIdx: number) {
+  //   const beforeRow = rows[insertRowIdx];
+  //   const newRow: Row = {
+  //     id: nextId,
+  //     workDate: new Date(beforeRow.workDate),
+  //     startTime: new Date(beforeRow.startTime),
+  //     endTime:new Date()
+  //   };
+  //   setRows([...rows.slice(0, insertRowIdx), newRow, ...rows.slice(insertRowIdx)]);
+  //   setNextId();
+  // }
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
   const [items, updateItems] = useState([
@@ -86,7 +94,7 @@ function App() {
           columns={columns}
           rows={rows}
           // onRowsChange={setRows}
-          onRowsChange={onChangeRows3}
+          onRowsChange={onChangeRows}
           rowHeight={20}
         />
       </div>
