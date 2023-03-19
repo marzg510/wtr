@@ -1,14 +1,14 @@
 import './App.css';
 
-import { useReducer, useState } from 'react';
+import React, { useLayoutEffect, useReducer, useRef, useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
+import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
 import { TimeFormatter, IntervalFormatter } from './DateEditor';
 import { formatDate } from './DateEditor';
-import { formatDiagnosticsWithColorAndContext } from 'typescript';
 import { Row } from'./types'
+import { createPortal } from 'react-dom';
 
 const columns: readonly Column<Row>[] = [
   {
@@ -48,6 +48,11 @@ function App() {
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
+  const [contextMenuProps, setContextMenuProps] = useState<{
+    rowIdx: Number;
+    top: Number;
+    left: number
+  } | null>(null);
   const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
   const onChangeRows = (rows: Row[], data: RowsChangeData<Row>) => {
     data.indexes.forEach(i => {
@@ -68,17 +73,47 @@ function App() {
       });
     })
   }
-  // function insertRow(insertRowIdx: number) {
-  //   const beforeRow = rows[insertRowIdx];
-  //   const newRow: Row = {
-  //     id: nextId,
-  //     workDate: new Date(beforeRow.workDate),
-  //     startTime: new Date(beforeRow.startTime),
-  //     endTime:new Date()
-  //   };
-  //   setRows([...rows.slice(0, insertRowIdx), newRow, ...rows.slice(insertRowIdx)]);
-  //   setNextId();
-  // }
+  function calculateWorkTime(row:Row) {
+    const start = Math.floor(row.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    const end   = Math.floor(row.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    console.log( "floor start,end", start, end);
+    const time = (end - start) - row.restTime;
+    return time;
+  }
+  function insertRow(insertRowIdx: number) {
+    const beforeRow = rows[insertRowIdx];
+    const newRow: Row = {
+      id: nextId,
+      workDate: new Date(beforeRow.workDate),
+      startTime: new Date(beforeRow.startTime),
+      endTime:new Date(beforeRow.endTime),
+      restTime: 0,
+      workTime: calculateWorkTime(beforeRow),
+      work: beforeRow.work,
+      projectAlias: beforeRow.projectAlias,
+      projectCd: beforeRow.projectCd,
+      task: beforeRow.task
+    };
+    setRows([...rows.slice(0, insertRowIdx), newRow, ...rows.slice(insertRowIdx)]);
+    setNextId();
+  }
+  const isContextMenuOpen = contextMenuProps !== null;
+  const menuRef = useRef<HTMLMenuElement | null>(null);
+  useLayoutEffect(() => {
+    if (!isContextMenuOpen) return;
+
+    function onClick(event: MouseEvent) {
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
+        return;
+      }
+      setContextMenuProps(null);
+    }
+    addEventListener('click', onClick);
+    return () => {
+      removeEventListener('click', onClick);
+    };
+  }, [isContextMenuOpen]);
+
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
   const [items, updateItems] = useState([
@@ -93,10 +128,36 @@ function App() {
         <DataGrid
           columns={columns}
           rows={rows}
+          rowHeight={20}
           // onRowsChange={setRows}
           onRowsChange={onChangeRows}
-          rowHeight={20}
+          onCellContextMenu={({ row }, event) => {
+            console.log("enter context menu");
+            event.preventDefault();
+            setContextMenuProps({
+              rowIdx: rows.indexOf(row),
+              top: event.clientY,
+              left: event.clientX
+            });
+          }}
         />
+        {isContextMenuOpen &&
+          createPortal(
+            <menu
+              ref={menuRef}
+              // className={contextMenuClassnmae}
+              style={
+                {
+                  top: contextMenuProps.top,
+                  left: contextMenuProps.left
+                } as unknown as React.CSSProperties
+              }
+            >
+              <li> test1 </li>
+              <li> test2 </li>
+            </menu>,
+            document.body
+          )}
       </div>
       <div>
         <input type="date"
