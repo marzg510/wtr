@@ -1,14 +1,14 @@
 import './App.css';
 
-import { useState } from 'react';
+import React, { useLayoutEffect, useReducer, useRef, useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-import DataGrid, { FormatterProps, textEditor } from 'react-data-grid';
+import DataGrid, { textEditor } from 'react-data-grid';
 import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
 import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
 import { TimeFormatter, IntervalFormatter } from './DateEditor';
 import { formatDate } from './DateEditor';
-import { formatDiagnosticsWithColorAndContext } from 'typescript';
 import { Row } from'./types'
+import { createPortal } from 'react-dom';
 
 const columns: readonly Column<Row>[] = [
   {
@@ -41,14 +41,20 @@ const columns: readonly Column<Row>[] = [
 function App() {
   const [rows,setRows] = useState<Row[]>([
     { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: '' , projectAlias: '', projectCd: '', task: '' },
+      work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
-  const onChangeRows3 = (rows: Row[], data: RowsChangeData<Row>) => {
+  const [contextMenuProps, setContextMenuProps] = useState<{
+    rowIdx: number;
+    top: number;
+    left: number
+  } | null>(null);
+  const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
+  const onChangeRows = (rows: Row[], data: RowsChangeData<Row>) => {
     data.indexes.forEach(i => {
       setRows(()=>{
         return rows.map((oldRow, oldIdx)=>{
@@ -58,10 +64,6 @@ function App() {
             const start = Math.floor(oldRow.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             const end   = Math.floor(oldRow.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
             console.log( "floor start,end", start, end);
-            // if ( start >= end ) {
-              // startのほうが大きければ変更しない
-              // return { ...oldRow, };
-            // }
             const time = (end - start) - oldRow.restTime;
             console.log( "time", time);
             return { ...oldRow, workTime: time }
@@ -71,6 +73,67 @@ function App() {
       });
     })
   }
+  function calculateWorkTime(row:Row) {
+    const start = Math.floor(row.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    const end   = Math.floor(row.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    console.log( "floor start,end", start, end);
+    const time = (end - start) - row.restTime;
+    return time;
+  }
+  const defaultWorkTime = 1;
+  function insertRowBefore(insertRowIdx: number) {
+    const fromRow = rows[insertRowIdx];
+    const st = fromRow.startTime;
+    const newRow: Row = {
+      id: nextId,
+      workDate: new Date(fromRow.workDate),
+      startTime: new Date(st.getFullYear(), st.getMonth(), st.getDay(), st.getHours()-defaultWorkTime, st.getMinutes(), 0),
+      endTime:new Date(fromRow.startTime),
+      restTime: 0,
+      workTime: defaultWorkTime,
+      work: fromRow.work,
+      projectAlias: fromRow.projectAlias,
+      projectCd: fromRow.projectCd,
+      task: fromRow.task
+    };
+    setRows([...rows.slice(0, insertRowIdx), newRow, ...rows.slice(insertRowIdx)]);
+    setNextId();
+  }
+  function insertRowAfter(insertRowIdx: number) {
+    const fromRow = rows[insertRowIdx];
+    const ed = fromRow.endTime;
+    const newRow: Row = {
+      id: nextId,
+      workDate: new Date(fromRow.workDate),
+      startTime:new Date(fromRow.endTime),
+      endTime: new Date(ed.getFullYear(), ed.getMonth(), ed.getDay(), ed.getHours()+defaultWorkTime, ed.getMinutes(), 0),
+      restTime: 0,
+      workTime: defaultWorkTime,
+      work: fromRow.work,
+      projectAlias: fromRow.projectAlias,
+      projectCd: fromRow.projectCd,
+      task: fromRow.task
+    };
+    setRows([...rows.slice(0, insertRowIdx+1), newRow, ...rows.slice(insertRowIdx+1)]);
+    setNextId();
+  }
+  const isContextMenuOpen = contextMenuProps !== null;
+  const menuRef = useRef<HTMLMenuElement | null>(null);
+  useLayoutEffect(() => {
+    if (!isContextMenuOpen) return;
+
+    function onClick(event: MouseEvent) {
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
+        return;
+      }
+      setContextMenuProps(null);
+    }
+    window.addEventListener('click', onClick);
+    return () => {
+      window.removeEventListener('click', onClick);
+    };
+  }, [isContextMenuOpen]);
+
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
   const [items, updateItems] = useState([
@@ -85,10 +148,61 @@ function App() {
         <DataGrid
           columns={columns}
           rows={rows}
-          // onRowsChange={setRows}
-          onRowsChange={onChangeRows3}
           rowHeight={20}
+          // onRowsChange={setRows}
+          onRowsChange={onChangeRows}
+          onCellContextMenu={({ row }, event) => {
+            event.preventDefault();
+            setContextMenuProps({
+              rowIdx: rows.indexOf(row),
+              top: event.clientY,
+              left: event.clientX
+            });
+          }}
         />
+        {isContextMenuOpen &&
+          createPortal(
+            <menu
+              ref={menuRef}
+              className={"ContextMenu"}
+              style={
+                {
+                  top: contextMenuProps.top,
+                  left: contextMenuProps.left
+                } as unknown as React.CSSProperties
+              }
+            >
+              <li>
+                <button type="button" onClick={()=>{
+                    const { rowIdx } = contextMenuProps;
+                    insertRowBefore(rowIdx);
+                    setContextMenuProps(null);
+                }}>
+                上に行追加
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={()=>{
+                    const { rowIdx } = contextMenuProps;
+                    insertRowAfter(rowIdx);
+                    setContextMenuProps(null);
+                }}>
+                下に行追加
+                </button>
+              </li>
+              <li> test1 </li>
+              <li> test2 </li>
+              <li>
+                <a onClick={()=>{alert("hello");}}>
+                  test3
+                </a>
+              </li>
+              <li>
+                <button type="button" onClick={()=>{alert("new")}}>新規作成</button>
+              </li>
+            </menu>,
+            document.body
+          )}
       </div>
       <div>
         <input type="date"
@@ -107,6 +221,7 @@ function App() {
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
         <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
+        <a onClick={()=>{alert("OK!")}}>OK</a>
       </div>
       <div>
         {/* see https://qiita.com/daitai-daidai/items/5752b308e5e0f9457352 */}
