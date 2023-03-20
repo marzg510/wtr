@@ -41,7 +41,7 @@ const columns: readonly Column<Row>[] = [
 function App() {
   const [rows,setRows] = useState<Row[]>([
     { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: '' , projectAlias: '', projectCd: '', task: '' },
+      work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
@@ -80,21 +80,41 @@ function App() {
     const time = (end - start) - row.restTime;
     return time;
   }
-  function insertRow(insertRowIdx: number) {
-    const beforeRow = rows[insertRowIdx];
+  const defaultWorkTime = 1;
+  function insertRowBefore(insertRowIdx: number) {
+    const fromRow = rows[insertRowIdx];
+    const st = fromRow.startTime;
     const newRow: Row = {
       id: nextId,
-      workDate: new Date(beforeRow.workDate),
-      startTime: new Date(beforeRow.startTime),
-      endTime:new Date(beforeRow.endTime),
+      workDate: new Date(fromRow.workDate),
+      startTime: new Date(st.getFullYear(), st.getMonth(), st.getDay(), st.getHours()-defaultWorkTime, st.getMinutes(), 0),
+      endTime:new Date(fromRow.startTime),
       restTime: 0,
-      workTime: calculateWorkTime(beforeRow),
-      work: beforeRow.work,
-      projectAlias: beforeRow.projectAlias,
-      projectCd: beforeRow.projectCd,
-      task: beforeRow.task
+      workTime: defaultWorkTime,
+      work: fromRow.work,
+      projectAlias: fromRow.projectAlias,
+      projectCd: fromRow.projectCd,
+      task: fromRow.task
     };
     setRows([...rows.slice(0, insertRowIdx), newRow, ...rows.slice(insertRowIdx)]);
+    setNextId();
+  }
+  function insertRowAfter(insertRowIdx: number) {
+    const fromRow = rows[insertRowIdx];
+    const ed = fromRow.endTime;
+    const newRow: Row = {
+      id: nextId,
+      workDate: new Date(fromRow.workDate),
+      startTime:new Date(fromRow.endTime),
+      endTime: new Date(ed.getFullYear(), ed.getMonth(), ed.getDay(), ed.getHours()+defaultWorkTime, ed.getMinutes(), 0),
+      restTime: 0,
+      workTime: defaultWorkTime,
+      work: fromRow.work,
+      projectAlias: fromRow.projectAlias,
+      projectCd: fromRow.projectCd,
+      task: fromRow.task
+    };
+    setRows([...rows.slice(0, insertRowIdx+1), newRow, ...rows.slice(insertRowIdx+1)]);
     setNextId();
   }
   const isContextMenuOpen = contextMenuProps !== null;
@@ -155,10 +175,19 @@ function App() {
               <li>
                 <button type="button" onClick={()=>{
                     const { rowIdx } = contextMenuProps;
-                    insertRow(rowIdx);
+                    insertRowBefore(rowIdx);
                     setContextMenuProps(null);
                 }}>
                 上に行追加
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={()=>{
+                    const { rowIdx } = contextMenuProps;
+                    insertRowAfter(rowIdx);
+                    setContextMenuProps(null);
+                }}>
+                下に行追加
                 </button>
               </li>
               <li> test1 </li>
