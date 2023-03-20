@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.ContextMenu {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid black;
+  padding: 4px;
+  list-style: none;
+}
+
+.ContextMenu > li {
+  padding: 1px;
+}
+
+.mycell {
+  background-color: cyan;
+  grid-template-rows: auto;
+  display: grid;
+}

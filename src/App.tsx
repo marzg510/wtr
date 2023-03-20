@@ -49,8 +49,8 @@ function App() {
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
   ]);
   const [contextMenuProps, setContextMenuProps] = useState<{
-    rowIdx: Number;
-    top: Number;
+    rowIdx: number;
+    top: number;
     left: number
   } | null>(null);
   const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
@@ -132,7 +132,6 @@ function App() {
           // onRowsChange={setRows}
           onRowsChange={onChangeRows}
           onCellContextMenu={({ row }, event) => {
-            console.log("enter context menu");
             event.preventDefault();
             setContextMenuProps({
               rowIdx: rows.indexOf(row),
@@ -145,7 +144,7 @@ function App() {
           createPortal(
             <menu
               ref={menuRef}
-              // className={contextMenuClassnmae}
+              className={"ContextMenu"}
               style={
                 {
                   top: contextMenuProps.top,
@@ -153,8 +152,25 @@ function App() {
                 } as unknown as React.CSSProperties
               }
             >
+              <li>
+                <button type="button" onClick={()=>{
+                    const { rowIdx } = contextMenuProps;
+                    insertRow(rowIdx);
+                    setContextMenuProps(null);
+                }}>
+                上に行追加
+                </button>
+              </li>
               <li> test1 </li>
               <li> test2 </li>
+              <li>
+                <a onClick={()=>{alert("hello");}}>
+                  test3
+                </a>
+              </li>
+              <li>
+                <button type="button" onClick={()=>{alert("new")}}>新規作成</button>
+              </li>
             </menu>,
             document.body
           )}
@@ -176,6 +192,7 @@ function App() {
         <button onClick={()=>{ alert(`value! ${dateValue}`); }}>alert</button>
         <input type="text" value={dateDispValue} readOnly />
         <button onClick={()=>{ setDateValue("2022-02-01"); }}>setValue20220101</button>
+        <a onClick={()=>{alert("OK!")}}>OK</a>
       </div>
       <div>
         {/* see https://qiita.com/daitai-daidai/items/5752b308e5e0f9457352 */}
