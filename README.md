@@ -15,6 +15,17 @@ yarn tauri dev
 - [react-data-grid demo](https://adazzle.github.io/react-data-grid/)
 - [tauri_test](https://github.com/marzg510/tauri_test)
 
+## Material UI
+
+- https://mui.com/
+- https://mui.com/material-ui/getting-started/installation/
+- https://ralacode.com/blog/post/react-material-ui/
+- https://qiita.com/uniuni__8282/items/359a5ec90742a696a1c1
+
+```bash
+npm install @mui/material @emotion/react @emotion/styled
+```
+
 ## 開発環境構築メモ
 
 ```bash
