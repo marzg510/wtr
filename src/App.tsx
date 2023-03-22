@@ -20,10 +20,10 @@ const TextButton = styled(Button)`
   text-transform: none;
 `
 
-function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | string | null>) {
+function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null>) {
   const apiRef = useGridApiContext();
 
-  function handleChange(newValue) {
+  function handleChange(newValue: Date | null) {
     apiRef.current.setEditCellValue({ id, field, value: newValue });
   }
 
