@@ -227,6 +227,7 @@ function App() {
   const toggleSidebarOpen=() => {
     setSidebarOpen(!isSidebarOpen)
   }
+  const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   return (
     <div>
       <Header/>
@@ -381,6 +382,21 @@ function App() {
         <TextButton>text</TextButton>
         <Button variant='contained'>contained</Button>
         <Button variant='outlined'>outlined</Button>
+      </div>
+      <div>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+          <Box p={2}>
+            <DatePicker
+              label="DatePicker"
+              value={datePickerDate}
+              onChange={(newValue : Date | null)=>{
+                console.log("datepicker onchange newvalue",newValue);
+                setDatePickerDate(newValue);
+              }}
+              // renderInput={(params) => <TextField {...params}
+              />
+          </Box>
+        </LocalizationProvider>
       </div>
     </div>
   );
