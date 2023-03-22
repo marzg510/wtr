@@ -87,13 +87,17 @@ const dateColumnType: GridColTypeDef<Date, string> = {
 //   { key: 'projectCd', name: 'ProjectCD', width: 10 },
 //   { key: 'task', name: 'task', width: 300, editor: textEditor },
 // ];
+// const columns: GridColDef[]= [
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   // { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true },
-  { field: 'workDate', headerName: 'Date', ...dateColumnType, width: 120, editable: true,
-    renderEditCell: (params: GridRenderEditCellParams) => (
-      <DatePicker {...params} />
-    ),
+  { field: 'workDate',
+    ...dateColumnType,
+    headerName: 'Date',
+    width: 150, editable: true,
+    // renderEditCell: (params: GridRenderEditCellParams) => (
+    //   <DatePicker {...params} />
+    // ),
   },
   { field: 'startTime', headerName: 'Start', type: 'datetime', width: 70, editable: true,
     valueFormatter: params => format(params?.value, 'HH:mm'),
@@ -250,13 +254,13 @@ function App() {
           <DataGrid
             rows={rows}
             columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
-                }
-              }
-            }}
+            // initialState={{
+            //   pagination: {
+            //     paginationModel: {
+            //       pageSize: 5,
+            //     }
+            //   }
+            // }}
           />
         </LocalizationProvider>
       </div>
