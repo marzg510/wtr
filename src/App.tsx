@@ -9,14 +9,50 @@ import { TimeFormatter, IntervalFormatter } from './DateEditor';
 import { formatDate } from './DateEditor';
 import { Row } from'./types'
 import { createPortal } from 'react-dom';
-import { Box, Button, Drawer, Link, List } from '@mui/material';
+import { Box, Button, Drawer, Link, List, TextField } from '@mui/material';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
+import { DatePicker } from '@mui/x-date-pickers';
 
 const TextButton = styled(Button)`
   text-transform: none;
 `
+
+function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | string | null>) {
+  const apiRef = useGridApiContext();
+
+  function handleChange(newValue) {
+    apiRef.current.setEditCellValue({ id, field, value: newValue });
+  }
+
+  return (
+    <DatePicker
+      value={value}
+      renderInput={(params) => <TextField {...params} />}
+      onChange={handleChange}
+    />
+  );
+}
+
+const dateColumnType: GridColTypeDef<Date, string> = {
+  ...GRID_DATE_COL_DEF,
+  resizable: false,
+  renderEditCell: (params) => {
+    return <GridEditDateCell {...params} />;
+  },
+  // filterOperators: getDateFilterOperators(),
+  // valueFormatter: (params) => {
+  //   if (typeof params.value === 'string') {
+  //     return params.value;
+  //   }
+  //   if (params.value) {
+  //     return dateAdapter.format(params.value, 'keyboardDate');
+  //   }
+  //   return '';
+  // },
+};
 
 // const columns: readonly Column<Row>[] = [
 //   {
@@ -47,8 +83,16 @@ const TextButton = styled(Button)`
 // ];
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
-  { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true },
-  { field: 'startTime', headerName: 'Start', type: 'time', width: 70, editable: true },
+  // { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true },
+  { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true,
+    renderEditCell: (params: GridRenderEditCellParams) => (
+      <DatePicker {...params} />
+    ),
+  },
+  { field: 'startTime', headerName: 'Start', type: 'time', width: 70,
+  renderEditCell: (params: GridRenderEditCellParams) => (
+    <TimePicker {...params} />
+  ), },
   { field: 'endTime', headerName: 'End', width: 70, },
   { field: 'restTime', headerName: 'Rest', type: 'number', width: 60, editable: true },
   { field: 'workTime', headerName: 'Working', width: 60, },
