@@ -14,13 +14,16 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import ja from 'date-fns/locale/ja'
+import locale from 'date-fns/locale/ja'
 
 const TextButton = styled(Button)`
   text-transform: none;
 `
 
-function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null>) {
+function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null, string>) {
   const apiRef = useGridApiContext();
 
   function handleChange(newValue: Date | null) {
@@ -30,11 +33,13 @@ function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Da
   return (
     <DatePicker
       value={value}
-      renderInput={(params) => <TextField {...params} />}
+      // renderInput={(params) => <TextField {...params} />}
       onChange={handleChange}
     />
   );
 }
+
+const dateAdapter = new AdapterDateFns({ locale });
 
 const dateColumnType: GridColTypeDef<Date, string> = {
   ...GRID_DATE_COL_DEF,
@@ -43,15 +48,15 @@ const dateColumnType: GridColTypeDef<Date, string> = {
     return <GridEditDateCell {...params} />;
   },
   // filterOperators: getDateFilterOperators(),
-  // valueFormatter: (params) => {
-  //   if (typeof params.value === 'string') {
-  //     return params.value;
-  //   }
-  //   if (params.value) {
-  //     return dateAdapter.format(params.value, 'keyboardDate');
-  //   }
-  //   return '';
-  // },
+  valueFormatter: (params) => {
+    if (typeof params.value === 'string') {
+      return params.value;
+    }
+    if (params.value) {
+      return dateAdapter.format(params.value, 'keyboardDate');
+    }
+    return '';
+  },
 };
 
 // const columns: readonly Column<Row>[] = [
@@ -214,6 +219,7 @@ function App() {
   const toggleSidebarOpen=() => {
     setSidebarOpen(!isSidebarOpen)
   }
+  const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   return (
     <div>
       <Header/>
@@ -232,17 +238,19 @@ function App() {
       </div> */}
       {/* <Box sx={{ height: 400, width: '100%' }}> */}
       <div style={{ height: 300, width: '100%'}}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                }
               }
-            }
-          }}
-        />
+            }}
+          />
+        </LocalizationProvider>
       </div>
       {/* </Box> */}
       {/* <div> */}
@@ -305,6 +313,21 @@ function App() {
             document.body
           )} */}
       {/* </div> */}
+      <div>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+          <Box p={2}>
+            <DatePicker
+              label="DatePicker"
+              value={datePickerDate}
+              onChange={(newValue : Date | null)=>{
+                console.log("datepicker onchange newvalue",newValue);
+                setDatePickerDate(newValue);
+              }}
+              // renderInput={(params) => <TextField {...params}
+              />
+          </Box>
+        </LocalizationProvider>
+      </div>
       <div>
         <input type="date"
           // className={textEditorClassname}
