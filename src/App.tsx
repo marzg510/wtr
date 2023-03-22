@@ -14,13 +14,17 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import ja from 'date-fns/locale/ja'
+import locale from 'date-fns/locale/ja'
+import format from 'date-fns/format';
 
 const TextButton = styled(Button)`
   text-transform: none;
 `
 
-function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null>) {
+function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null, string>) {
   const apiRef = useGridApiContext();
 
   function handleChange(newValue: Date | null) {
@@ -30,11 +34,13 @@ function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Da
   return (
     <DatePicker
       value={value}
-      renderInput={(params) => <TextField {...params} />}
+      // renderInput={(params) => <TextField {...params} />}
       onChange={handleChange}
     />
   );
 }
+
+const dateAdapter = new AdapterDateFns({ locale });
 
 const dateColumnType: GridColTypeDef<Date, string> = {
   ...GRID_DATE_COL_DEF,
@@ -43,15 +49,15 @@ const dateColumnType: GridColTypeDef<Date, string> = {
     return <GridEditDateCell {...params} />;
   },
   // filterOperators: getDateFilterOperators(),
-  // valueFormatter: (params) => {
-  //   if (typeof params.value === 'string') {
-  //     return params.value;
-  //   }
-  //   if (params.value) {
-  //     return dateAdapter.format(params.value, 'keyboardDate');
-  //   }
-  //   return '';
-  // },
+  valueFormatter: (params) => {
+    if (typeof params.value === 'string') {
+      return params.value;
+    }
+    if (params.value) {
+      return dateAdapter.format(params.value, 'keyboardDate');
+    }
+    return '';
+  },
 };
 
 // const columns: readonly Column<Row>[] = [
@@ -84,16 +90,23 @@ const dateColumnType: GridColTypeDef<Date, string> = {
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   // { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true },
-  { field: 'workDate', headerName: 'Date', type: 'date', width: 120, editable: true,
+  { field: 'workDate', headerName: 'Date', ...dateColumnType, width: 120, editable: true,
     renderEditCell: (params: GridRenderEditCellParams) => (
       <DatePicker {...params} />
     ),
   },
-  { field: 'startTime', headerName: 'Start', type: 'time', width: 70,
-  renderEditCell: (params: GridRenderEditCellParams) => (
-    <TimePicker {...params} />
-  ), },
-  { field: 'endTime', headerName: 'End', width: 70, },
+  { field: 'startTime', headerName: 'Start', type: 'datetime', width: 70, editable: true,
+    valueFormatter: params => format(params?.value, 'HH:mm'),
+    renderEditCell: (params: GridRenderEditCellParams) => (
+      <TimePicker {...params} />
+    ),
+  },
+  { field: 'endTime', headerName: 'End', type: 'datetime', width: 70, editable: true,
+    valueFormatter: params => format(params?.value, 'HH:mm'),
+    renderEditCell: (params: GridRenderEditCellParams) => (
+      <TimePicker {...params} />
+    ),
+  },
   { field: 'restTime', headerName: 'Rest', type: 'number', width: 60, editable: true },
   { field: 'workTime', headerName: 'Working', width: 60, },
   { field: 'work', headerName: 'Work', width: 300, editable: true },
@@ -108,7 +121,7 @@ function App() {
     //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: '2022-01-03', startTime: '09:00', endTime: '10:00', restTime:0, workTime:null,
       // work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: '09:00', endTime: '10:00', restTime:0, workTime:null,
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date(), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
       work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
@@ -232,17 +245,19 @@ function App() {
       </div> */}
       {/* <Box sx={{ height: 400, width: '100%' }}> */}
       <div style={{ height: 300, width: '100%'}}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                }
               }
-            }
-          }}
-        />
+            }}
+          />
+        </LocalizationProvider>
       </div>
       {/* </Box> */}
       {/* <div> */}
