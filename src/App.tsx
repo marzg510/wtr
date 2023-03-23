@@ -363,6 +363,21 @@ function App() {
           )} */}
       {/* </div> */}
       <div>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
+          <Box p={2}>
+            <DatePicker
+              label="DatePicker"
+              value={datePickerDate}
+              onChange={(newValue : Date | null)=>{
+                console.log("datepicker onchange newvalue",newValue);
+                setDatePickerDate(newValue);
+              }}
+              // renderInput={(params) => <TextField {...params}
+              />
+          </Box>
+        </LocalizationProvider>
+      </div>
+      <div>
         <input type="date"
           // className={textEditorClassname}
           // value={Intl.DateTimeFormat("ja-JP").format(row[column.key])}
