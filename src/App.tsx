@@ -34,7 +34,6 @@ function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Da
   return (
     <DatePicker
       value={value}
-      // renderInput={(params) => <TextField {...params} />}
       onChange={handleChange}
     />
   );
@@ -60,6 +59,38 @@ const dateColumnType: GridColTypeDef<Date, string> = {
   },
 };
 
+function GridEditTimeCell({ id, field, value }: GridRenderEditCellParams<any, Date | null, string>) {
+  const apiRef = useGridApiContext();
+
+  function handleChange(newValue: Date | null) {
+    console.log('time new value type',newValue)
+    apiRef.current.setEditCellValue({ id, field, value: newValue });
+  }
+
+  return (
+    <TimePicker
+      value={value}
+      onChange={handleChange}
+    />
+  );
+}
+const timeColumnType: GridColTypeDef<Date, string> = {
+  ...GRID_DATE_COL_DEF,
+  resizable: false,
+  renderEditCell: (params) => {
+    return <GridEditTimeCell {...params} />;
+  },
+  // filterOperators: getDateFilterOperators(),
+  valueFormatter: (params) => {
+    if (typeof params.value === 'string') {
+      return params.value;
+    }
+    if (params.value) {
+      return format(params.value, 'HH:mm');
+    }
+    return '';
+  },
+};
 // const columns: readonly Column<Row>[] = [
 //   {
 //     ...SelectColumn,
@@ -99,17 +130,23 @@ const columns: GridColDef[]= [
     //   <DatePicker {...params} />
     // ),
   },
-  { field: 'startTime', headerName: 'Start', type: 'datetime', width: 70, editable: true,
-    valueFormatter: params => format(params?.value, 'HH:mm'),
-    renderEditCell: (params: GridRenderEditCellParams) => (
-      <TimePicker {...params} />
-    ),
+  { field: 'startTime', headerName: 'Start',
+  //  type: 'datetime',
+    ...timeColumnType,
+    width: 70, editable: true,
+    // valueFormatter: params => format(params?.value, 'HH:mm'),
+    // renderEditCell: (params: GridRenderEditCellParams) => (
+    //   <TimePicker {...params} />
+    // ),
   },
-  { field: 'endTime', headerName: 'End', type: 'datetime', width: 70, editable: true,
-    valueFormatter: params => format(params?.value, 'HH:mm'),
-    renderEditCell: (params: GridRenderEditCellParams) => (
-      <TimePicker {...params} />
-    ),
+  { field: 'endTime', headerName: 'End',
+    // type: 'datetime',
+    ...timeColumnType,
+    width: 70, editable: true,
+    // valueFormatter: params => format(params?.value, 'HH:mm'),
+    // renderEditCell: (params: GridRenderEditCellParams) => (
+    //   <TimePicker {...params} />
+    // ),
   },
   { field: 'restTime', headerName: 'Rest', type: 'number', width: 60, editable: true },
   { field: 'workTime', headerName: 'Working', width: 60, },
@@ -125,7 +162,7 @@ function App() {
     //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: '2022-01-03', startTime: '09:00', endTime: '10:00', restTime:0, workTime:null,
       // work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date(), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
       work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
