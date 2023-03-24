@@ -9,7 +9,7 @@ import { TimeFormatter, IntervalFormatter } from './DateEditor';
 import { formatDate } from './DateEditor';
 import { Row } from'./types'
 import { createPortal } from 'react-dom';
-import { Box, Button, Drawer, Link, List, TextField } from '@mui/material';
+import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
@@ -268,6 +268,9 @@ function App() {
     setSidebarOpen(!isSidebarOpen)
   }
   const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
+  const handleAddRow = () => {
+    setRows((prevRows) => [...prevRows, prevRows[0]]);
+  };
   return (
     <div>
       <Header/>
@@ -286,6 +289,14 @@ function App() {
       </div> */}
       {/* <Box sx={{ height: 400, width: '100%' }}> */}
       <div style={{ height: 300, width: '100%'}}>
+        <Stack direction="row" spacing={1}>
+          <Button size="small" onClick={handleAddRow}>
+            Add a row
+          </Button>
+          {/* <Button size="small" onClick={handleDeleteRow}>
+            Delete a row
+          </Button> */}
+        </Stack>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
           <DataGrid
             rows={rows}
