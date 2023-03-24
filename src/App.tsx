@@ -12,7 +12,7 @@ import { createPortal } from 'react-dom';
 import { Box, Button, Drawer, Link, List, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -118,6 +118,14 @@ const timeColumnType: GridColTypeDef<Date, string> = {
 //   { key: 'projectCd', name: 'ProjectCD', width: 10 },
 //   { key: 'task', name: 'task', width: 300, editor: textEditor },
 // ];
+function getWorkTime(params:GridValueGetterParams) {
+    const row = params.row;
+    const start = Math.floor(row.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    const end   = Math.floor(row.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
+    console.log( "floor start,end", start, end);
+    const time = (end - start) - row.restTime;
+    return time;
+}
 // const columns: GridColDef[]= [
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
@@ -126,30 +134,21 @@ const columns: GridColDef[]= [
     ...dateColumnType,
     headerName: 'Date',
     width: 150, editable: true,
-    // renderEditCell: (params: GridRenderEditCellParams) => (
-    //   <DatePicker {...params} />
-    // ),
   },
   { field: 'startTime', headerName: 'Start',
   //  type: 'datetime',
     ...timeColumnType,
     width: 70, editable: true,
-    // valueFormatter: params => format(params?.value, 'HH:mm'),
-    // renderEditCell: (params: GridRenderEditCellParams) => (
-    //   <TimePicker {...params} />
-    // ),
   },
   { field: 'endTime', headerName: 'End',
     // type: 'datetime',
     ...timeColumnType,
     width: 70, editable: true,
-    // valueFormatter: params => format(params?.value, 'HH:mm'),
-    // renderEditCell: (params: GridRenderEditCellParams) => (
-    //   <TimePicker {...params} />
-    // ),
   },
   { field: 'restTime', headerName: 'Rest', type: 'number', width: 80, editable: true },
-  { field: 'workTime', headerName: 'Working', width: 60, },
+  { field: 'workTime', headerName: 'Working', width: 60,
+    valueGetter: getWorkTime
+  },
   { field: 'work', headerName: 'Work', width: 300, editable: true },
   { field: 'projectAlias', headerName: 'ProjectAlias', width: 300, },
   { field: 'projectCd', headerName: 'ProjectCD', width: 10 },
