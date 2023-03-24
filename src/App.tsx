@@ -148,7 +148,7 @@ const columns: GridColDef[]= [
     //   <TimePicker {...params} />
     // ),
   },
-  { field: 'restTime', headerName: 'Rest', type: 'number', width: 60, editable: true },
+  { field: 'restTime', headerName: 'Rest', type: 'number', width: 80, editable: true },
   { field: 'workTime', headerName: 'Working', width: 60, },
   { field: 'work', headerName: 'Work', width: 300, editable: true },
   { field: 'projectAlias', headerName: 'ProjectAlias', width: 300, },
