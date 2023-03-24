@@ -12,13 +12,14 @@ import { createPortal } from 'react-dom';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import ja from 'date-fns/locale/ja'
 import locale from 'date-fns/locale/ja'
 import format from 'date-fns/format';
+import { addHours } from 'date-fns';
 
 const TextButton = styled(Button)`
   text-transform: none;
@@ -122,7 +123,7 @@ function getWorkTime(params:GridValueGetterParams) {
     const row = params.row;
     const start = Math.floor(row.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
     const end   = Math.floor(row.endTime.getTime()   / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
-    console.log( "floor start,end", start, end);
+    // console.log( "floor start,end", start, end);
     const time = (end - start) - row.restTime;
     return time;
 }
@@ -238,6 +239,7 @@ function App() {
   //   setRows([...rows.slice(0, insertRowIdx+1), newRow, ...rows.slice(insertRowIdx+1)]);
   //   setNextId();
   // }
+  // let idCounter = 0;
   const isContextMenuOpen = contextMenuProps !== null;
   const menuRef = useRef<HTMLMenuElement | null>(null);
   useLayoutEffect(() => {
@@ -269,8 +271,30 @@ function App() {
   }
   const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   const handleAddRow = () => {
-    setRows((prevRows) => [...prevRows, prevRows[0]]);
+    setRows((prevRows) => {
+      console.log("prevrows",prevRows);
+      console.log("incremented idCounter",nextId);
+      console.log("selectionModel", selectionModel);
+      console.log("selected rowId", selectedRowId);
+      if ( selectedRowId.size !== 1) return [ ...prevRows ];
+      const selectedRow = rows.filter((row) => selectedRowId.has(row.id))[0];
+      const selectedRowIdx = rows.indexOf(selectedRow);
+      const prevRow = prevRows[0];
+      // const prevRow = selectionModel;
+      const newRow = { ...selectedRow, 
+                      id: nextId,
+                      startTime: new Date(selectedRow.endTime),
+                      endTime: addHours(selectedRow.endTime, defaultWorkTime),
+                      // restTime: 0,
+                    }
+  //     endTime: new Date(ed.getFullYear(), ed.getMonth(), ed.getDay(), ed.getHours()+defaultWorkTime, ed.getMinutes(), 0),
+      setNextId()
+      // return [...prevRows, newRow]
+      return [...prevRows.slice(0, selectedRowIdx+1), newRow, ...prevRows.slice(selectedRowIdx+1)]
+    });
   };
+  const [selectionModel, setSelectionModel] = useState<Row[]>([]);
+  const [selectedRowId, setSelectedRowId] = useState<Set<GridRowId>>(new Set());
   return (
     <div>
       <Header/>
@@ -299,8 +323,17 @@ function App() {
         </Stack>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
           <DataGrid
+            rowHeight={25}
             rows={rows}
             columns={columns}
+            onRowSelectionModelChange={(newSelectionModel) => {
+              console.log("new selection model",newSelectionModel)
+              const selectedRowId = new Set(newSelectionModel);
+              const selectedRows = rows.filter((row) => selectedRowId.has(row.id));
+              setSelectionModel(selectedRows);
+              setSelectedRowId(selectedRowId);
+            }}
+            // rowSelectionModel={selectionModel}
             // initialState={{
             //   pagination: {
             //     paginationModel: {
