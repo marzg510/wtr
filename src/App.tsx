@@ -279,7 +279,8 @@ function App() {
       if ( selectedRowId.size !== 1) return [ ...prevRows ];
       const selectedRow = rows.filter((row) => selectedRowId.has(row.id))[0];
       const selectedRowIdx = rows.indexOf(selectedRow);
-      const prevRow = prevRows[0];
+      console.log("selected row idx,row", selectedRowIdx, selectedRow);
+      // const prevRow = prevRows[0];
       // const prevRow = selectionModel;
       const newRow = { ...selectedRow, 
                       id: nextId,
