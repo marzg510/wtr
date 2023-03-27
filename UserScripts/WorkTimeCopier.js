@@ -19,7 +19,13 @@
   // 正しい画面かチェック
   const td = $("td:contains(【日次勤務入力】)");
   if ( td.length != 1) return;
-  const debugArea = $(td).append("<div/>")
+  // debugArea追加
+  var debugArea = $(td).append('<div id="m510-debug-area"/>');
+  debugArea.log = function(message) {
+    // const now = new Date();
+    // $(this).append(`<p>${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} ${message}</p>`)
+    $(this).append(`<p>${message}</p>`)
+  }
 
   // 日付取り出し
   const thisDate = new Date(Date.parse(
@@ -38,7 +44,7 @@
   const cookieIndex = Cookies.get(cookieKeyIndex);
   console.log(cookieKeyTextArea, cookieTextArea);
   console.log(cookieKeyIndex, cookieIndex);
-  $(debugArea).append(`<p>cookie_clicked:${cookieRowCopyClicked}</p>`)
+  debugArea.log(`page start, cookie_clicked:${cookieRowCopyClicked}`)
 
   // アラートメッセージ初期化
   var alerts = [];
@@ -93,8 +99,10 @@
       var fields = parseLine(line);
       // プロジェクトが見つからない時はalertに追加
       var projectCd = fields[7];
-      if( getProjectRows(projectCd).length === 0 ) {
-        alerts.add(index, `管理単位NO ${projectCd} が見つかりません`)
+      debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
+      // プロジェクトが見つからない時はalertに追加
+      if ( !hasProjectCd(projectCd) ) {
+        alerts.add(i, `管理単位NO ${projectCd} が見つかりません`)
         return false;
       }
       var copied = copyWorkTime(fields,i);
