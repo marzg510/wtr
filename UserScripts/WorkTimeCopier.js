@@ -14,6 +14,7 @@
   const cookieKeyRowCopyClicked='m510-copy-clicked';
   const cookieKeyTextArea='m510-textarea';
   const cookieKeyIndex='m510-textarea-index';
+  const cookieKeyAlerts='m510-alerts';
   const idTextArea = "m510-worktime-textarea";
 
   // 正しい画面かチェック
@@ -39,18 +40,20 @@
 
   const worktimeTable = $('table[summary="管理単位"]');
 
+  // Cookie取得
   var cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
   const cookieTextArea = Cookies.get(cookieKeyTextArea);
   const cookieIndex = Cookies.get(cookieKeyIndex);
-  console.log(cookieKeyTextArea, cookieTextArea);
-  console.log(cookieKeyIndex, cookieIndex);
-  debugArea.log(`page start, cookie_clicked:${cookieRowCopyClicked}`)
-
-  // アラートメッセージ初期化
-  var alerts = [];
+  var alerts = Cookies.get(cookieKeyAlerts);
+  if ( !alerts ) { alerts = []; }
   alerts.add = function(index, message ) {
     this.push(`${index+1}行目:${message}`);
   }
+  console.log(cookieKeyTextArea, cookieTextArea);
+  console.log(cookieKeyIndex, cookieIndex);
+  debugArea.log(`page start, cookie_clicked:${cookieRowCopyClicked}`)
+  debugArea.log(` alerts:${alerts}`)
+
   // 貼り付け用テキストボックスを追加
   addTextArea(cookieTextArea);
   // コピーボタンが押された上の画面遷移だったら、転記を継続する
@@ -99,10 +102,10 @@
       if ( line.trim().length === 0 ) return false;
       var fields = parseLine(line);
       var projectCd = fields[7];
-      debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
+      // debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
       // プロジェクトが見つからない時はalertに追加
       var projectCd = fields[7];
-      debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
+      // debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
       // プロジェクトが見つからない時はalertに追加
       if ( !hasProjectCd(projectCd) ) {
         alerts.add(i, `管理単位NO ${projectCd} が見つかりません`)
@@ -211,7 +214,7 @@
    * @returns empty row
    */
   function findEmptyRow(projectCd) {
-    debugArea.log(`findEmptyRow projectCD=${projectCd}`);
+    // debugArea.log(`findEmptyRow projectCD=${projectCd}`);
     var rows =  $(`table[summary="管理単位"] tr:contains(${projectCd})`);
     var rows = getProjectRows(projectCd);
     var emptyRow = $('input[name="minsH"]', rows).filter(function() {
@@ -266,11 +269,11 @@
    * @returns Project's TR elements
    */
   function getProjectRows(projectCd) {
-    debugArea.log(`getProjectRows projectCd=${projectCd}`)
+    // debugArea.log(`getProjectRows projectCd=${projectCd}`)
     var foundRows = $('tr', worktimeTable).filter(function() {
       return ( $.trim($(this).children('td:first').text()) === projectCd )
     });
-    debugArea.log(`getProjectRows foundRows =${foundRows}`)
+    // debugArea.log(`getProjectRows foundRows =${foundRows}`)
     console.log('found rows', foundRows);
     return foundRows;
   }
