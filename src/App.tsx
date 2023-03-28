@@ -12,7 +12,7 @@ import { createPortal } from 'react-dom';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -157,19 +157,24 @@ const columns: GridColDef[]= [
 ];
 
 function App() {
-  const [rows,setRows] = useState([
+  const data : GridRowsProp = [
+    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+      work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+  ];
+  const [rows,setRows] = useState(
+    data
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
     //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: '2022-01-03', startTime: '09:00', endTime: '10:00', restTime:0, workTime:null,
       // work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+    //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
     // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
     // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
     // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
     // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-  ]);
+  );
   const [contextMenuProps, setContextMenuProps] = useState<{
     rowIdx: number;
     top: number;
@@ -325,14 +330,35 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
           <DataGrid
             rowHeight={25}
-            rows={rows}
+            // rows={rows}
+            rows={data}
             columns={columns}
             onRowSelectionModelChange={(newSelectionModel) => {
               console.log("new selection model",newSelectionModel)
               const selectedRowId = new Set(newSelectionModel);
               const selectedRows = rows.filter((row) => selectedRowId.has(row.id));
-              setSelectionModel(selectedRows);
-              setSelectedRowId(selectedRowId);
+              console.log("selected rows", selectedRows)
+              console.log("data",data)
+              // setSelectionModel(selectedRows);
+              // setSelectedRowId(selectedRowId);
+            }}
+            // https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
+            onCellEditStart={(params, event)=>{
+              console.log("onCellEditStart params",params);
+              console.log("onCellEditStart event",event);
+            }}
+            onCellEditStop={(params, event)=>{
+              console.log("onCellEditStop params",params);
+              console.log("onCellEditStop event",event);
+            }}
+            processRowUpdate={(newRow, oldRow) => {
+              console.log("processRowUpdate newRow", newRow);
+              console.log("processRowUpdate oldRow", oldRow);
+              const newRows = rows.map((row) => (row.id === newRow.id ? newRow : row));
+              console.log("processRowUpdate newRows", newRows);
+              // setRows(newRows);
+              // setRows(rows.map((row) => (row.id === newRow.id ? newRow : row)));
+              return newRow;
             }}
             // rowSelectionModel={selectionModel}
             // initialState={{
