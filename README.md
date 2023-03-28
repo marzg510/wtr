@@ -21,6 +21,8 @@ yarn tauri dev
 - https://mui.com/material-ui/getting-started/installation/
 - https://ralacode.com/blog/post/react-material-ui/
 - https://qiita.com/uniuni__8282/items/359a5ec90742a696a1c1
+- https://mui.com/x/react-data-grid/editing/
+- https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
 
 ```bash
 npm install @mui/material @emotion/react @emotion/styled
