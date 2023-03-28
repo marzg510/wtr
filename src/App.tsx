@@ -277,14 +277,14 @@ function App() {
   const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   const handleAddRow = () => {
     setRows((prevRows) => {
-      console.log("prevrows",prevRows);
-      console.log("incremented idCounter",nextId);
-      console.log("selectionModel", selectionModel);
-      console.log("selected rowId", selectedRowId);
+      console.log("handleAddRow prevrows",prevRows);
+      console.log("handleAddRow incremented idCounter",nextId);
+      // console.log("handleAddRow selectionModel", selectionModel);
+      console.log("handleAddRow selected rowId", selectedRowId);
       if ( selectedRowId.size !== 1) return [ ...prevRows ];
       const selectedRow = rows.filter((row) => selectedRowId.has(row.id))[0];
       const selectedRowIdx = rows.indexOf(selectedRow);
-      console.log("selected row idx,row", selectedRowIdx, selectedRow);
+      console.log("handleAddRow selected row idx,row", selectedRowIdx, selectedRow);
       // const prevRow = prevRows[0];
       // const prevRow = selectionModel;
       const newRow = { ...selectedRow, 
@@ -299,7 +299,7 @@ function App() {
       return [...prevRows.slice(0, selectedRowIdx+1), newRow, ...prevRows.slice(selectedRowIdx+1)]
     });
   };
-  const [selectionModel, setSelectionModel] = useState<Row[]>([]);
+  // const [selectionModel, setSelectionModel] = useState<Row[]>([]);
   const [selectedRowId, setSelectedRowId] = useState<Set<GridRowId>>(new Set());
   return (
     <div>
@@ -330,8 +330,8 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
           <DataGrid
             rowHeight={25}
-            // rows={rows}
-            rows={data}
+            rows={rows}
+            // rows={data}
             columns={columns}
             onRowSelectionModelChange={(newSelectionModel) => {
               console.log("new selection model",newSelectionModel)
@@ -340,7 +340,7 @@ function App() {
               console.log("selected rows", selectedRows)
               console.log("data",data)
               // setSelectionModel(selectedRows);
-              // setSelectedRowId(selectedRowId);
+              setSelectedRowId(selectedRowId);
             }}
             // https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
             onCellEditStart={(params, event)=>{
@@ -354,10 +354,10 @@ function App() {
             processRowUpdate={(newRow, oldRow) => {
               console.log("processRowUpdate newRow", newRow);
               console.log("processRowUpdate oldRow", oldRow);
-              const newRows = rows.map((row) => (row.id === newRow.id ? newRow : row));
-              console.log("processRowUpdate newRows", newRows);
-              // setRows(newRows);
-              // setRows(rows.map((row) => (row.id === newRow.id ? newRow : row)));
+              setRows((prevRows) => {
+                console.log("processRowUpdate prevrows",prevRows);
+                return prevRows.map((row) => (row.id === newRow.id ? newRow : row));
+              });
               return newRow;
             }}
             // rowSelectionModel={selectionModel}
