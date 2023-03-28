@@ -21,6 +21,12 @@ import locale from 'date-fns/locale/ja'
 import format from 'date-fns/format';
 import { addHours } from 'date-fns';
 
+
+export enum LocalStorageKeys {
+  WORKS_KEY   = 'm510-grid-data',
+  NEXT_ID_KEY = 'm510-next-id',
+}
+
 const TextButton = styled(Button)`
   text-transform: none;
 `
@@ -171,7 +177,6 @@ function App() {
     setRows((prevRows) => {
       console.log("handleAddRow prevrows",prevRows);
       console.log("handleAddRow incremented idCounter",nextId);
-      // console.log("handleAddRow selectionModel", selectionModel);
       console.log("handleAddRow selected rowId", selectedRowId);
       if ( selectedRowId.size !== 1) return [ ...prevRows ];
       const selectedRow = rows.filter((row) => selectedRowId.has(row.id))[0];
@@ -211,9 +216,34 @@ function App() {
           <Button size="small" onClick={handleAddRow}>
             Add a row
           </Button>
-          {/* <Button size="small" onClick={handleDeleteRow}>
-            Delete a row
-          </Button> */}
+          <Button size="small" onClick={()=> {
+            localStorage.setItem(LocalStorageKeys.WORKS_KEY, JSON.stringify(rows));
+          }}>
+            Save
+          </Button>
+          <Button size="small" onClick={()=>{
+            const dateKeys = ['workDate','startTime','endTime'];
+            const json = localStorage.getItem(LocalStorageKeys.WORKS_KEY);
+            console.log("onClickLoad: loaded json", json);
+            // https://oscdis.hatenablog.com/entry/2014/03/19/082015
+            const rowsValue = JSON.parse((json ?  json : ''), (key,value)=>{
+              console.log('json parse key,value', key, value);
+              if (dateKeys.includes(key)) {
+                console.log('date found', key, value)
+                return new Date(Date.parse(value));
+              }
+              return value;
+            });
+            console.log("onClickLoad: loaded rows", rowsValue);
+            setRows(rowsValue);
+          }}>
+            Load
+          </Button>
+          <Button size="small" onClick={()=> {
+            localStorage.removeItem(LocalStorageKeys.WORKS_KEY);
+          }}>
+            RemoveSaved
+          </Button>
         </Stack>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
           <DataGrid
