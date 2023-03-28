@@ -54,3 +54,12 @@
   grid-template-rows: auto;
   display: grid;
 }
+
+.Sidebar {
+  width: 300px;
+  height: 300px;
+}
+
+article {
+  display: flex;
+}

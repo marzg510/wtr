@@ -14,12 +14,19 @@
   const cookieKeyRowCopyClicked='m510-copy-clicked';
   const cookieKeyTextArea='m510-textarea';
   const cookieKeyIndex='m510-textarea-index';
+  const cookieKeyAlerts='m510-alerts';
   const idTextArea = "m510-worktime-textarea";
 
   // 正しい画面かチェック
   const td = $("td:contains(【日次勤務入力】)");
   if ( td.length != 1) return;
-  const debugArea = $(td).append("<div/>")
+  // debugArea追加
+  var debugArea = $(td).append('<div id="m510-debug-area"/>');
+  debugArea.log = function(message) {
+    // const now = new Date();
+    // $(this).append(`<p>${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} ${message}</p>`)
+    $(this).append(`<p>${message}</p>`)
+  }
 
   // 日付取り出し
   const thisDate = new Date(Date.parse(
@@ -33,18 +40,20 @@
 
   const worktimeTable = $('table[summary="管理単位"]');
 
+  // Cookie取得
   var cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
   const cookieTextArea = Cookies.get(cookieKeyTextArea);
   const cookieIndex = Cookies.get(cookieKeyIndex);
-  console.log(cookieKeyTextArea, cookieTextArea);
-  console.log(cookieKeyIndex, cookieIndex);
-  $(debugArea).append(`<p>cookie_clicked:${cookieRowCopyClicked}</p>`)
-
-  // アラートメッセージ初期化
-  var alerts = [];
+  var alerts = Cookies.get(cookieKeyAlerts);
+  if ( !alerts ) { alerts = []; }
   alerts.add = function(index, message ) {
     this.push(`${index+1}行目:${message}`);
   }
+  console.log(cookieKeyTextArea, cookieTextArea);
+  console.log(cookieKeyIndex, cookieIndex);
+  debugArea.log(`page start, cookie_clicked:${cookieRowCopyClicked}`)
+  debugArea.log(` alerts:${alerts}`)
+
   // 貼り付け用テキストボックスを追加
   addTextArea(cookieTextArea);
   // コピーボタンが押された上の画面遷移だったら、転記を継続する
@@ -70,6 +79,7 @@
   function onCopyClicked() {
     var lines = getTextAreaLines();
     console.log(lines.length)
+    debugArea.log(`onCopyClicked lines=${lines.length}`);
     // フォームのクリア処理
     clearForm();
     // 転記
@@ -79,22 +89,26 @@
     return;
   }
   /**
-   * 指定行の作業時間を転記
+   * 指定行以降の作業時間を転記
    * @param {string[]} lines 
-   * @param {number} index 
+   * @param {number} start_index 
    */
-  function copyWorkTimes(lines, index) {
+  function copyWorkTimes(lines, start_index) {
     console.log("copy work times");
     var last_index = 0;
     lines.some((line,i) => {
       last_index = i
-      if ( i < index ) return false;
+      if ( i < start_index ) return false;
       if ( line.trim().length === 0 ) return false;
       var fields = parseLine(line);
+      var projectCd = fields[7];
+      // debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
       // プロジェクトが見つからない時はalertに追加
       var projectCd = fields[7];
-      if( getProjectRows(projectCd).length === 0 ) {
-        alerts.add(index, `管理単位NO ${projectCd} が見つかりません`)
+      // debugArea.log(`copyWorkTimes projectCd=${projectCd}`);
+      // プロジェクトが見つからない時はalertに追加
+      if ( !hasProjectCd(projectCd) ) {
+        alerts.add(i, `管理単位NO ${projectCd} が見つかりません`)
         return false;
       }
       var copied = copyWorkTime(fields,i);
@@ -143,11 +157,12 @@
         return false;
     }
     console.log("found row", row);
+    debugArea.log(`copyWorkTime found row ${row}`);
     // 転記
     $('input[name="task"]', row).val(task).change().blur();
     $('input[name="minsH"]', row).val(workHour).change().blur();
     $('input[name="minsM"]', row).val(workMinute).change().blur();
-    cookieRowCopyClicked = false; // 一度転記が成功したら行コピーボタンを押したフラグはどうでもいいはず
+    cookieRowCopyClicked = false; // 一度転記が成功したら行コピーボタンを押したフラグはどうでもいい
     return true;
   }
   /**
@@ -199,6 +214,7 @@
    * @returns empty row
    */
   function findEmptyRow(projectCd) {
+    // debugArea.log(`findEmptyRow projectCD=${projectCd}`);
     var rows =  $(`table[summary="管理単位"] tr:contains(${projectCd})`);
     var rows = getProjectRows(projectCd);
     var emptyRow = $('input[name="minsH"]', rows).filter(function() {
@@ -253,7 +269,13 @@
    * @returns Project's TR elements
    */
   function getProjectRows(projectCd) {
-    return $(`tr:contains(${projectCd})`, worktimeTable);
+    // debugArea.log(`getProjectRows projectCd=${projectCd}`)
+    var foundRows = $('tr', worktimeTable).filter(function() {
+      return ( $.trim($(this).children('td:first').text()) === projectCd )
+    });
+    // debugArea.log(`getProjectRows foundRows =${foundRows}`)
+    console.log('found rows', foundRows);
+    return foundRows;
   }
   /**
    * フォームのクリア
