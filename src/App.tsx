@@ -250,6 +250,7 @@ function App() {
             rowHeight={25}
             rows={rows}
             columns={columns}
+            editMode="row"
             onRowSelectionModelChange={(newSelectionModel) => {
               console.log("new selection model",newSelectionModel)
               const selectedRowId = new Set(newSelectionModel);
