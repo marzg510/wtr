@@ -125,20 +125,10 @@ const columns: GridColDef[]= [
 ];
 
 function App() {
-  const [rows,setRows] = useState(
+  const [rows,setRows] = useState([
     { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
       work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-    //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    // { id: 0, workDate: '2022-01-03', startTime: '09:00', endTime: '10:00', restTime:0, workTime:null,
-      // work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-    //   work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
-    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:new Date('1970-01-01 00:00'), workTime:new Date('1970-01-01 00:00'), },
-    // { id: 0, workDate: '2022-01-01', startTime: '09:00', endTime: '10:00', restTime:'0:00' },
-    // { id: 1, workDate: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
-    // { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), },
-    // { id: 1, date: '2022-02-01', startTime: '10:00', endTime: '11:00', restTime:'0:00' },
+  ]
   );
   const [contextMenuProps, setContextMenuProps] = useState<{
     rowIdx: number;
@@ -187,13 +177,11 @@ function App() {
       const selectedRow = rows.filter((row) => selectedRowId.has(row.id))[0];
       const selectedRowIdx = rows.indexOf(selectedRow);
       console.log("handleAddRow selected row idx,row", selectedRowIdx, selectedRow);
-      // const prevRow = prevRows[0];
-      // const prevRow = selectionModel;
       const newRow = { ...selectedRow, 
                       id: nextId,
                       startTime: new Date(selectedRow.endTime),
                       endTime: addHours(selectedRow.endTime, defaultWorkTime),
-                      // restTime: 0,
+                      restTime: 0,
                     }
       setNextId()
       // return [...prevRows, newRow]
