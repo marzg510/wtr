@@ -106,13 +106,14 @@ function getWorkTime(params:GridValueGetterParams) {
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   { field: 'workDate',
-    ...dateColumnType,
+    // ...dateColumnType,
+    type: 'date',
     headerName: 'Date',
     width: 150, editable: true,
   },
   { field: 'startTime', headerName: 'Start',
-  //  type: 'datetime',
-    ...timeColumnType,
+   type: 'datetime',
+    // ...timeColumnType,
     width: 70, editable: true,
   },
   { field: 'endTime', headerName: 'End',
@@ -251,6 +252,7 @@ function App() {
             rows={rows}
             columns={columns}
             editMode="row"
+            
             onRowSelectionModelChange={(newSelectionModel) => {
               console.log("new selection model",newSelectionModel)
               const selectedRowId = new Set(newSelectionModel);
@@ -262,10 +264,12 @@ function App() {
             onCellEditStart={(params, event)=>{
               console.log("onCellEditStart params",params);
               console.log("onCellEditStart event",event);
+              event.defaultMuiPrevented = true;
             }}
             onCellEditStop={(params, event)=>{
               console.log("onCellEditStop params",params);
               console.log("onCellEditStop event",event);
+              event.defaultMuiPrevented = true;
             }}
             processRowUpdate={(newRow, oldRow) => {
               console.log("processRowUpdate newRow", newRow);
