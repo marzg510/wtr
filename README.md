@@ -24,6 +24,18 @@ yarn tauri dev
 
 ```bash
 npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/x-data-grid
+npm install @mui/icons-material
+```
+
+## Material UI(DatePicker)
+
+- DatePickerを日付入力に使うかは要検討
+
+```
+npm install @mui/x-date-pickers
+npm install date-fns
+npm install @date-io/date-fns
 ```
 
 ## 開発環境構築メモ
