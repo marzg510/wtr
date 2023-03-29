@@ -2,24 +2,15 @@ import './App.css';
 
 import { useLayoutEffect, useReducer, useRef, useState } from 'react';
 import 'react-data-grid/lib/styles.css';
-// import DataGrid, { textEditor } from 'react-data-grid';
-// import { Column, SelectColumn,RowsChangeData } from 'react-data-grid';
-// import dateEditor, { timeEditor, intervalEditor } from './DateEditor';
-// import { TimeFormatter, IntervalFormatter } from './DateEditor';
-// import { formatDate } from './DateEditor';
-// import { Row } from'./types'
-// import { createPortal } from 'react-dom';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import ja from 'date-fns/locale/ja'
 import locale from 'date-fns/locale/ja'
-import format from 'date-fns/format';
 import { addHours } from 'date-fns';
+import { timeColumnType } from './DateEditor';
 
 
 export enum LocalStorageKeys {
@@ -31,71 +22,6 @@ const TextButton = styled(Button)`
   text-transform: none;
 `
 
-function GridEditDateCell({ id, field, value }: GridRenderEditCellParams<any, Date | null, string>) {
-  const apiRef = useGridApiContext();
-
-  function handleChange(newValue: Date | null) {
-    apiRef.current.setEditCellValue({ id, field, value: newValue });
-  }
-
-  return (
-    <DatePicker
-      value={value}
-      onChange={handleChange}
-    />
-  );
-}
-
-const dateAdapter = new AdapterDateFns({ locale });
-
-const dateColumnType: GridColTypeDef<Date, string> = {
-  ...GRID_DATE_COL_DEF,
-  resizable: false,
-  renderEditCell: (params) => {
-    return <GridEditDateCell {...params} />;
-  },
-  valueFormatter: (params) => {
-    if (typeof params.value === 'string') {
-      return params.value;
-    }
-    if (params.value) {
-      return dateAdapter.format(params.value, 'keyboardDate');
-    }
-    return '';
-  },
-};
-
-function GridEditTimeCell({ id, field, value }: GridRenderEditCellParams<any, Date | null, string>) {
-  const apiRef = useGridApiContext();
-
-  function handleChange(newValue: Date | null) {
-    console.log('time new value type',newValue)
-    apiRef.current.setEditCellValue({ id, field, value: newValue });
-  }
-
-  return (
-    <TimePicker
-      value={value}
-      onChange={handleChange}
-    />
-  );
-}
-const timeColumnType: GridColTypeDef<Date, string> = {
-  ...GRID_DATE_COL_DEF,
-  resizable: false,
-  renderEditCell: (params) => {
-    return <GridEditTimeCell {...params} />;
-  },
-  valueFormatter: (params) => {
-    if (typeof params.value === 'string') {
-      return params.value;
-    }
-    if (params.value) {
-      return format(params.value, 'HH:mm');
-    }
-    return '';
-  },
-};
 function getWorkTime(params:GridValueGetterParams) {
     const row = params.row;
     const start = Math.floor(row.startTime.getTime() / 1000 / 60) / 60;// 分単位で切り捨ててから時間にする
@@ -103,20 +29,28 @@ function getWorkTime(params:GridValueGetterParams) {
     const time = (end - start) - row.restTime;
     return time;
 }
+function MyCustomEditComponent(props: GridRenderEditCellParams) {
+  const { id, value, field } = props;
+  const apiRef = useGridApiContext();
+  return <input type="text" value={props.value} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value; // The new value entered by the user
+    apiRef.current.setEditCellValue({ id, field, value: newValue+'!' });
+  }} />;
+}
+
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   { field: 'workDate',
-    ...dateColumnType,
+    // ...dateColumnType,
+    type: 'date',
     headerName: 'Date',
     width: 150, editable: true,
   },
   { field: 'startTime', headerName: 'Start',
-  //  type: 'datetime',
     ...timeColumnType,
     width: 70, editable: true,
   },
   { field: 'endTime', headerName: 'End',
-    // type: 'datetime',
     ...timeColumnType,
     width: 70, editable: true,
   },
@@ -124,7 +58,11 @@ const columns: GridColDef[]= [
   { field: 'workTime', headerName: 'Working', width: 60,
     valueGetter: getWorkTime
   },
-  { field: 'work', headerName: 'Work', width: 300, editable: true },
+  { field: 'work', headerName: 'Work', width: 300, editable: true,
+    renderEditCell: (params: GridRenderEditCellParams) => (
+      <MyCustomEditComponent {...params} />
+    ),
+  },
   { field: 'projectAlias', headerName: 'ProjectAlias', width: 300, },
   { field: 'projectCd', headerName: 'ProjectCD', width: 10 },
   { field: 'task', headerName: 'task', width: 300, },
@@ -168,10 +106,10 @@ function App() {
     { name: "item 3", done: false }
   ]);
   const [numValue, setNumValue] = useState<number>(0.0);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebarOpen=() => {
-    setSidebarOpen(!isSidebarOpen)
-  }
+  // const [isSidebarOpen, setSidebarOpen] = useState(false);
+  // const toggleSidebarOpen=() => {
+  //   setSidebarOpen(!isSidebarOpen)
+  // }
   const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   const handleAddRow = () => {
     setRows((prevRows) => {
@@ -189,7 +127,6 @@ function App() {
                       restTime: 0,
                     }
       setNextId()
-      // return [...prevRows, newRow]
       return [...prevRows.slice(0, selectedRowIdx+1), newRow, ...prevRows.slice(selectedRowIdx+1)]
     });
   };
@@ -245,49 +182,49 @@ function App() {
             RemoveSaved
           </Button>
         </Stack>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-          <DataGrid
-            rowHeight={25}
-            rows={rows}
-            columns={columns}
-            editMode="row"
-            onRowSelectionModelChange={(newSelectionModel) => {
-              console.log("new selection model",newSelectionModel)
-              const selectedRowId = new Set(newSelectionModel);
-              const selectedRows = rows.filter((row) => selectedRowId.has(row.id));
-              console.log("selected rows", selectedRows)
-              setSelectedRowId(selectedRowId);
-            }}
-            // https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
-            onCellEditStart={(params, event)=>{
-              console.log("onCellEditStart params",params);
-              console.log("onCellEditStart event",event);
-            }}
-            onCellEditStop={(params, event)=>{
-              console.log("onCellEditStop params",params);
-              console.log("onCellEditStop event",event);
-            }}
-            processRowUpdate={(newRow, oldRow) => {
-              console.log("processRowUpdate newRow", newRow);
-              console.log("processRowUpdate oldRow", oldRow);
-              setRows((prevRows) => {
-                console.log("processRowUpdate prevrows",prevRows);
-                return prevRows.map((row) => (row.id === newRow.id ? newRow : row));
-              });
-              return newRow;
-            }}
-            // rowSelectionModel={selectionModel}
-            // initialState={{
-            //   pagination: {
-            //     paginationModel: {
-            //       pageSize: 5,
-            //     }
-            //   }
-            // }}
+        <DataGrid
+          rowHeight={25}
+          rows={rows}
+          columns={columns}
+          // editMode="row"
+          onRowSelectionModelChange={(newSelectionModel) => {
+            // console.log("new selection model",newSelectionModel)
+            const selectedRowId = new Set(newSelectionModel);
+            const selectedRows = rows.filter((row) => selectedRowId.has(row.id));
+            console.log("selected rows", selectedRows)
+            setSelectedRowId(selectedRowId);
+          }}
+          // https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
+          onCellEditStart={(params, event)=>{
+            console.log("onCellEditStart params",params);
+            console.log("onCellEditStart event",event);
+            // event.defaultMuiPrevented = true;
+          }}
+          onCellEditStop={(params, event)=>{
+            console.log("onCellEditStop params",params);
+            console.log("onCellEditStop event",event);
+            // event.defaultMuiPrevented = true;
+          }}
+          processRowUpdate={(newRow, oldRow) => {
+            console.log("processRowUpdate newRow", newRow);
+            console.log("processRowUpdate oldRow", oldRow);
+            setRows((prevRows) => {
+              console.log("processRowUpdate prevrows",prevRows);
+              return prevRows.map((row) => (row.id === newRow.id ? newRow : row));
+            });
+            return newRow;
+          }}
+          // rowSelectionModel={selectionModel}
+          // initialState={{
+          //   pagination: {
+          //     paginationModel: {
+          //       pageSize: 5,
+          //     }
+          //   }
+          // }}
           />
-        </LocalizationProvider>
       </div>
-      <div>
+      {/* <div>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
           <Box p={2}>
             <DatePicker
@@ -301,7 +238,7 @@ function App() {
               />
           </Box>
         </LocalizationProvider>
-      </div>
+      </div> */}
       <div>
         <input type="date"
           // className={textEditorClassname}
@@ -364,7 +301,7 @@ function App() {
         <Button variant='contained'>contained</Button>
         <Button variant='outlined'>outlined</Button>
       </div>
-      <div>
+      {/* <div>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
           <Box p={2}>
             <DatePicker
@@ -377,8 +314,8 @@ function App() {
               // renderInput={(params) => <TextField {...params}
               />
           </Box>
-        </LocalizationProvider>
-      </div>
+        </LocalizationProvider> */}
+      {/* </div> */}
     </div>
   );
 }
