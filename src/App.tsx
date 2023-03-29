@@ -1,12 +1,10 @@
 import './App.css';
 
 import { useLayoutEffect, useReducer, useRef, useState } from 'react';
-import 'react-data-grid/lib/styles.css';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import ja from 'date-fns/locale/ja'
 import locale from 'date-fns/locale/ja'
 import { addHours } from 'date-fns';
