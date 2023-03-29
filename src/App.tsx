@@ -20,6 +20,7 @@ import ja from 'date-fns/locale/ja'
 import locale from 'date-fns/locale/ja'
 import format from 'date-fns/format';
 import { addHours } from 'date-fns';
+import { formatDate, formatTime } from './DateEditor';
 
 
 export enum LocalStorageKeys {
@@ -103,6 +104,29 @@ function getWorkTime(params:GridValueGetterParams) {
     const time = (end - start) - row.restTime;
     return time;
 }
+function MyCustomEditComponent(props: GridRenderEditCellParams) {
+  const { id, value, field } = props;
+  const apiRef = useGridApiContext();
+  return <input type="text" value={props.value} onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value; // The new value entered by the user
+    apiRef.current.setEditCellValue({ id, field, value: newValue+'!' });
+  }} />;
+}
+function TimeEditComponent(props: GridRenderEditCellParams) {
+  const { id, value, field } = props;
+  const apiRef = useGridApiContext();
+  return (
+    <input type="time"
+      value={((d)=>{ return formatTime(d); })(props.value)}
+      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.value;
+        console.log("TimeEditComponent#onChange newValue",newValue);
+        apiRef.current.setEditCellValue({ id, field, value:  new Date(`1970-01-01 ${newValue}`)  });
+      }}
+    />
+  );
+}
+
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   { field: 'workDate',
@@ -115,6 +139,7 @@ const columns: GridColDef[]= [
    type: 'datetime',
     // ...timeColumnType,
     width: 70, editable: true,
+    renderEditCell: (params: GridRenderEditCellParams) => ( <TimeEditComponent {...params} />),
   },
   { field: 'endTime', headerName: 'End',
     // type: 'datetime',
@@ -125,7 +150,11 @@ const columns: GridColDef[]= [
   { field: 'workTime', headerName: 'Working', width: 60,
     valueGetter: getWorkTime
   },
-  { field: 'work', headerName: 'Work', width: 300, editable: true },
+  { field: 'work', headerName: 'Work', width: 300, editable: true,
+    renderEditCell: (params: GridRenderEditCellParams) => (
+      <MyCustomEditComponent {...params} />
+    ),
+  },
   { field: 'projectAlias', headerName: 'ProjectAlias', width: 300, },
   { field: 'projectCd', headerName: 'ProjectCD', width: 10 },
   { field: 'task', headerName: 'task', width: 300, },
@@ -252,9 +281,8 @@ function App() {
             rows={rows}
             columns={columns}
             editMode="row"
-            
             onRowSelectionModelChange={(newSelectionModel) => {
-              console.log("new selection model",newSelectionModel)
+              // console.log("new selection model",newSelectionModel)
               const selectedRowId = new Set(newSelectionModel);
               const selectedRows = rows.filter((row) => selectedRowId.has(row.id));
               console.log("selected rows", selectedRows)
@@ -264,12 +292,12 @@ function App() {
             onCellEditStart={(params, event)=>{
               console.log("onCellEditStart params",params);
               console.log("onCellEditStart event",event);
-              event.defaultMuiPrevented = true;
+              // event.defaultMuiPrevented = true;
             }}
             onCellEditStop={(params, event)=>{
               console.log("onCellEditStop params",params);
               console.log("onCellEditStop event",event);
-              event.defaultMuiPrevented = true;
+              // event.defaultMuiPrevented = true;
             }}
             processRowUpdate={(newRow, oldRow) => {
               console.log("processRowUpdate newRow", newRow);
