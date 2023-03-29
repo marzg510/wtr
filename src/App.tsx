@@ -5,7 +5,7 @@ import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import { addHours } from 'date-fns';
+import { addHours, format } from 'date-fns';
 import { timeColumnType } from './DateEditor';
 
 
@@ -70,29 +70,30 @@ function App() {
       work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
   ]
   );
-  const [contextMenuProps, setContextMenuProps] = useState<{
-    rowIdx: number;
-    top: number;
-    left: number
-  } | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date('2022-01-03'));
+  // const [contextMenuProps, setContextMenuProps] = useState<{
+  //   rowIdx: number;
+  //   top: number;
+  //   left: number
+  // } | null>(null);
   const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
   const defaultWorkTime = 1;
-  const isContextMenuOpen = contextMenuProps !== null;
-  const menuRef = useRef<HTMLMenuElement | null>(null);
-  useLayoutEffect(() => {
-    if (!isContextMenuOpen) return;
+  // const isContextMenuOpen = contextMenuProps !== null;
+  // const menuRef = useRef<HTMLMenuElement | null>(null);
+  // useLayoutEffect(() => {
+  //   if (!isContextMenuOpen) return;
 
-    function onClick(event: MouseEvent) {
-      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
-        return;
-      }
-      setContextMenuProps(null);
-    }
-    window.addEventListener('click', onClick);
-    return () => {
-      window.removeEventListener('click', onClick);
-    };
-  }, [isContextMenuOpen]);
+  //   function onClick(event: MouseEvent) {
+  //     if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
+  //       return;
+  //     }
+  //     setContextMenuProps(null);
+  //   }
+  //   window.addEventListener('click', onClick);
+  //   return () => {
+  //     window.removeEventListener('click', onClick);
+  //   };
+  // }, [isContextMenuOpen]);
 
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
@@ -167,6 +168,14 @@ function App() {
           }}>
             RemoveSaved
           </Button>
+        </Stack>
+        <Stack>
+          <input type="date"
+            value={format(selectedDate, 'yyyy-MM-dd')}
+            onChange={(event)=>{
+              setSelectedDate(new Date(event.target.value));
+            }}
+          />
         </Stack>
         <DataGrid
           rowHeight={25}
