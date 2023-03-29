@@ -5,8 +5,6 @@ import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material
 import styled from '@emotion/styled';
 import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
-import ja from 'date-fns/locale/ja'
-import locale from 'date-fns/locale/ja'
 import { addHours } from 'date-fns';
 import { timeColumnType } from './DateEditor';
 
@@ -104,11 +102,6 @@ function App() {
     { name: "item 3", done: false }
   ]);
   const [numValue, setNumValue] = useState<number>(0.0);
-  // const [isSidebarOpen, setSidebarOpen] = useState(false);
-  // const toggleSidebarOpen=() => {
-  //   setSidebarOpen(!isSidebarOpen)
-  // }
-  const [datePickerDate, setDatePickerDate] = useState<Date | null>(new Date());
   const handleAddRow = () => {
     setRows((prevRows) => {
       console.log("handleAddRow prevrows",prevRows);
@@ -133,23 +126,18 @@ function App() {
   return (
     <div>
       <Header/>
-      {/* <div>
-      <Button onClick={toggleSidebarOpen}>hoge</Button>
-      <Drawer className='Sidebar' anchor='left' open={isSidebarOpen} onClose={toggleSidebarOpen}
-              variant="temporary"
-              // variant="permanent"
-      >
-        <List>
-          <p>hello</p>
-          <p>hello2</p>
-          <Link href="#" underline="hover">link hello</Link>
-        </List>
-      </Drawer>
-      </div> */}
       <div style={{ height: 300, width: '100%'}}>
         <Stack direction="row" spacing={1}>
           <Button size="small" onClick={handleAddRow}>
             Add a row
+          </Button>
+          <Button size="small" onClick={() => {
+            setRows((prevRows) => {
+              if ( selectedRowId.size !== 1) return [ ...prevRows ];
+              return prevRows.filter((row)=> !selectedRowId.has(row.id))
+            });
+          }}>
+            Delete a row
           </Button>
           <Button size="small" onClick={()=> {
             localStorage.setItem(LocalStorageKeys.WORKS_KEY, JSON.stringify(rows));
@@ -222,21 +210,6 @@ function App() {
           // }}
           />
       </div>
-      {/* <div>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
-          <Box p={2}>
-            <DatePicker
-              label="DatePicker"
-              value={datePickerDate}
-              onChange={(newValue : Date | null)=>{
-                console.log("datepicker onchange newvalue",newValue);
-                setDatePickerDate(newValue);
-              }}
-              // renderInput={(params) => <TextField {...params}
-              />
-          </Box>
-        </LocalizationProvider>
-      </div> */}
       <div>
         <input type="date"
           // className={textEditorClassname}
