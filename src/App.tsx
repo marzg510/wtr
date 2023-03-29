@@ -123,9 +123,26 @@ function TimeEditComponent(props: GridRenderEditCellParams) {
         console.log("TimeEditComponent#onChange newValue",newValue);
         apiRef.current.setEditCellValue({ id, field, value:  new Date(`1970-01-01 ${newValue}`)  });
       }}
+      autoFocus
     />
   );
 }
+const timeColumnType2: GridColTypeDef<Date, string> = {
+  ...GRID_DATE_COL_DEF,
+  resizable: false,
+  renderEditCell: (params) => {
+    return <TimeEditComponent {...params} />;
+  },
+  valueFormatter: (params) => {
+    if (typeof params.value === 'string') {
+      return params.value;
+    }
+    if (params.value) {
+      return format(params.value, 'HH:mm');
+    }
+    return '';
+  },
+};
 
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
@@ -137,9 +154,9 @@ const columns: GridColDef[]= [
   },
   { field: 'startTime', headerName: 'Start',
    type: 'datetime',
-    // ...timeColumnType,
+    ...timeColumnType2,
     width: 70, editable: true,
-    renderEditCell: (params: GridRenderEditCellParams) => ( <TimeEditComponent {...params} />),
+    // renderEditCell: (params: GridRenderEditCellParams) => ( <TimeEditComponent {...params} />),
   },
   { field: 'endTime', headerName: 'End',
     // type: 'datetime',
@@ -219,7 +236,6 @@ function App() {
                       restTime: 0,
                     }
       setNextId()
-      // return [...prevRows, newRow]
       return [...prevRows.slice(0, selectedRowIdx+1), newRow, ...prevRows.slice(selectedRowIdx+1)]
     });
   };
@@ -280,7 +296,7 @@ function App() {
             rowHeight={25}
             rows={rows}
             columns={columns}
-            editMode="row"
+            // editMode="row"
             onRowSelectionModelChange={(newSelectionModel) => {
               // console.log("new selection model",newSelectionModel)
               const selectedRowId = new Set(newSelectionModel);
