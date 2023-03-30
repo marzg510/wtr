@@ -58,10 +58,20 @@ const columns: GridColDef[]= [
       <MyCustomEditComponent {...params} />
     ),
   },
-  { field: 'projectAlias', headerName: 'ProjectAlias', width: 300, },
+  { field: 'projectName', headerName: 'ProjectName', width: 300, editable: true,
+    type: "singleSelect",
+    // valueOptions: ["test","testg2"]
+    valueOptions: { projects.map((prj) => prj.name}
+
+  },
   { field: 'projectCd', headerName: 'ProjectCD', width: 10 },
   { field: 'task', headerName: 'task', width: 300, },
 ];
+const [projects, setProjects] = useState([
+  { id: 0, name: "xyz project contract1", code: 12345 },
+  { id: 1, name: "abc project contract1", code: 67890 },
+  { id: 3, name: "hoge project contractX", code: 59630 },
+]);
 
 function App() {
   const [rows,setRows] = useState([
