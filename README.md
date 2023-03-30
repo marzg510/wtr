@@ -20,6 +20,7 @@ yarn tauri dev
 - https://mui.com/
 - https://mui.com/material-ui/getting-started/overview/
 - https://mui.com/material-ui/getting-started/installation/
+- https://mui.com/x/react-data-grid/
 - https://mui.com/x/react-data-grid/editing/
 - https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
 - https://ralacode.com/blog/post/react-material-ui/
