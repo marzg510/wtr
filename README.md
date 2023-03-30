@@ -2,18 +2,17 @@
 Work Time Recorder
 
 
-## Debug
+## Links
+
+- https://mui.com/material-ui/getting-started/overview/
+- https://mui.com/x/react-data-grid/
+- [tauri_test](https://github.com/marzg510/tauri_test)
+
+## date-fns
 
 ```bash
-cd tauri-wtr
-yarn tauri dev
+npm install date-fns
 ```
-
-## Link Repos
-
-- [react-data-grid](https://github.com/adazzle/react-data-grid)
-- [react-data-grid demo](https://adazzle.github.io/react-data-grid/)
-- [tauri_test](https://github.com/marzg510/tauri_test)
 
 ## Material UI
 
@@ -34,11 +33,10 @@ npm install @mui/icons-material
 
 ## Material UI(DatePicker)
 
-- DatePickerを日付入力に使うかは要検討
+- DatePickerを日付入力に使うかは要検討⇒Gridの中では使わない
 
 ```
 npm install @mui/x-date-pickers
-npm install date-fns
 npm install @date-io/date-fns
 ```
 
@@ -49,11 +47,26 @@ nvm use v18
 npx create-react-app test_react_data_grid --template typescript
 cd test_react_data_grid
 npm start
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/x-data-grid
+npm install @mui/icons-material
+npm install date-fns
 (Ctrl-C)
-npm install react-data-grid
 # App.tsx編集
 npm start
 ```
+
+## Debug
+
+```bash
+cd tauri-wtr
+yarn tauri dev
+```
+
+## 過去の検討
+
+- [react-data-grid](https://github.com/adazzle/react-data-grid)
+- [react-data-grid demo](https://adazzle.github.io/react-data-grid/)
 
 
 # Getting Started with Create React App
