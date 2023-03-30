@@ -1,9 +1,9 @@
 import './App.css';
 
-import { useLayoutEffect, useReducer, useRef, useState } from 'react';
+import { useReducer, useState } from 'react';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GRID_DATE_COL_DEF, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
 import { addHours, format } from 'date-fns';
 import { timeColumnType } from './DateEditor';
@@ -37,7 +37,6 @@ function MyCustomEditComponent(props: GridRenderEditCellParams) {
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
   { field: 'workDate',
-    // ...dateColumnType,
     type: 'date',
     headerName: 'Date',
     width: 150, editable: true,
@@ -66,34 +65,18 @@ const columns: GridColDef[]= [
 
 function App() {
   const [rows,setRows] = useState([
-    { id: 0, workDate: new Date('2022-01-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+    { id: 0, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
       work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+    { id: 1, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 10:00'), endTime: new Date('1970-01-01 11:00'), restTime:0, workTime:null,
+      work: 'coding' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+    { id: 2, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 11:00'), endTime: new Date('1970-01-01 14:00'), restTime:1, workTime:null,
+      work: 'meeting' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+    { id: 3, workDate: new Date('2022-04-04'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
+      work: 'writing' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
   ]
   );
-  const [selectedDate, setSelectedDate] = useState(new Date('2022-01-03'));
-  // const [contextMenuProps, setContextMenuProps] = useState<{
-  //   rowIdx: number;
-  //   top: number;
-  //   left: number
-  // } | null>(null);
   const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
   const defaultWorkTime = 1;
-  // const isContextMenuOpen = contextMenuProps !== null;
-  // const menuRef = useRef<HTMLMenuElement | null>(null);
-  // useLayoutEffect(() => {
-  //   if (!isContextMenuOpen) return;
-
-  //   function onClick(event: MouseEvent) {
-  //     if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
-  //       return;
-  //     }
-  //     setContextMenuProps(null);
-  //   }
-  //   window.addEventListener('click', onClick);
-  //   return () => {
-  //     window.removeEventListener('click', onClick);
-  //   };
-  // }, [isContextMenuOpen]);
 
   const [dateValue, setDateValue] = useState("");
   const [dateDispValue, setDateDispValue] = useState("");
@@ -122,7 +105,6 @@ function App() {
       return [...prevRows.slice(0, selectedRowIdx+1), newRow, ...prevRows.slice(selectedRowIdx+1)]
     });
   };
-  // const [selectionModel, setSelectionModel] = useState<Row[]>([]);
   const [selectedRowId, setSelectedRowId] = useState<Set<GridRowId>>(new Set());
   return (
     <div>
@@ -169,14 +151,6 @@ function App() {
             RemoveSaved
           </Button>
         </Stack>
-        <Stack>
-          <input type="date"
-            value={format(selectedDate, 'yyyy-MM-dd')}
-            onChange={(event)=>{
-              setSelectedDate(new Date(event.target.value));
-            }}
-          />
-        </Stack>
         <DataGrid
           rowHeight={25}
           rows={rows}
@@ -189,7 +163,6 @@ function App() {
             console.log("selected rows", selectedRows)
             setSelectedRowId(selectedRowId);
           }}
-          // https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
           onCellEditStart={(params, event)=>{
             console.log("onCellEditStart params",params);
             console.log("onCellEditStart event",event);
