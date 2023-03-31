@@ -69,17 +69,18 @@ const columns: GridColDef[]= [
     valueOptions: projects.map((prj) => { return { value: prj.id, label: prj.name } })
   },
   { field: 'projectCd', headerName: 'ProjectCD', width: 10, 
-    // valueGetter: (params:GridValueGetterParams) => { return projects.find((e)=>{e.id === params.row.projectId}) }
-    valueGetter: (params:GridValueGetterParams)=>{ console.log("projectCd valueGetter value", params.value); return params.value; },
-    valueSetter: (params:GridValueSetterParams)=>{ console.log("projectCd valueSetter row", params.row); return params.row; },
+    valueGetter: (params:GridValueGetterParams) => {
+      const pj = projects.find((p)=>{ return p.id === params.row.projectId});
+      return pj && pj.code
+    }
    },
-  { field: 'task', headerName: 'task', width: 300, },
+  { field: 'task', headerName: 'task', width: 300, editable: true },
 ];
 
 function App() {
   const [rows,setRows] = useState([
     { id: 0, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: 'mail' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
+      work: 'mail' , projectId: projects[0].id, task: 'design' },
     { id: 1, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 10:00'), endTime: new Date('1970-01-01 11:00'), restTime:0, workTime:null,
       work: 'coding' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
     { id: 2, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 11:00'), endTime: new Date('1970-01-01 14:00'), restTime:1, workTime:null,
