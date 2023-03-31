@@ -3,10 +3,11 @@ import './App.css';
 import { useReducer, useState } from 'react';
 import { Box, Button, Drawer, Link, List, Stack, TextField } from '@mui/material';
 import styled from '@emotion/styled';
-import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, useGridApiContext } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColTypeDef, GridRenderEditCellParams, GridRowId, GridRowsProp, GridValueGetterParams, GridValueSetterParams, useGridApiContext } from '@mui/x-data-grid';
 import Header from './Header';
 import { addHours, format } from 'date-fns';
 import { timeColumnType } from './DateEditor';
+import { PanoramaFishEyeSharp } from '@mui/icons-material';
 
 
 export enum LocalStorageKeys {
@@ -33,6 +34,11 @@ function MyCustomEditComponent(props: GridRenderEditCellParams) {
     apiRef.current.setEditCellValue({ id, field, value: newValue+'!' });
   }} />;
 }
+var projects = [
+  { id: 0, name: "xyz project contract1", code: 12345 },
+  { id: 1, name: "abc project contract1", code: 67890 },
+  { id: 3, name: "hoge project contractX", code: 59630 },
+];
 
 const columns: GridColDef[]= [
   { field: 'id', headerName: 'ID', width: 10 },
@@ -58,31 +64,28 @@ const columns: GridColDef[]= [
       <MyCustomEditComponent {...params} />
     ),
   },
-  { field: 'projectName', headerName: 'ProjectName', width: 300, editable: true,
+  { field: 'projectId', headerName: 'ProjectName', width: 300, editable: true,
     type: "singleSelect",
-    // valueOptions: ["test","testg2"]
-    valueOptions: { projects.map((prj) => prj.name}
-
+    valueOptions: projects.map((prj) => { return { value: prj.id, label: prj.name } })
   },
-  { field: 'projectCd', headerName: 'ProjectCD', width: 10 },
+  { field: 'projectCd', headerName: 'ProjectCD', width: 10, 
+    // valueGetter: (params:GridValueGetterParams) => { return projects.find((e)=>{e.id === params.row.projectId}) }
+    valueGetter: (params:GridValueGetterParams)=>{ console.log("projectCd valueGetter value", params.value); return params.value; },
+    valueSetter: (params:GridValueSetterParams)=>{ console.log("projectCd valueSetter row", params.row); return params.row; },
+   },
   { field: 'task', headerName: 'task', width: 300, },
 ];
-const [projects, setProjects] = useState([
-  { id: 0, name: "xyz project contract1", code: 12345 },
-  { id: 1, name: "abc project contract1", code: 67890 },
-  { id: 3, name: "hoge project contractX", code: 59630 },
-]);
 
 function App() {
   const [rows,setRows] = useState([
     { id: 0, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: 'mail' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+      work: 'mail' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
     { id: 1, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 10:00'), endTime: new Date('1970-01-01 11:00'), restTime:0, workTime:null,
-      work: 'coding' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+      work: 'coding' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
     { id: 2, workDate: new Date('2022-04-03'), startTime: new Date('1970-01-01 11:00'), endTime: new Date('1970-01-01 14:00'), restTime:1, workTime:null,
-      work: 'meeting' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+      work: 'meeting' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
     { id: 3, workDate: new Date('2022-04-04'), startTime: new Date('1970-01-01 09:00'), endTime: new Date('1970-01-01 10:00'), restTime:0, workTime:null,
-      work: 'writing' , projectAlias: 'test-proj.', projectCd: 'xyz', task: 'design' },
+      work: 'writing' , projectId: projects[0].id, projectCd: 'xyz', task: 'design' },
   ]
   );
   const [nextId, setNextId] = useReducer((id: number) => id + 1, rows[rows.length - 1].id + 1);
@@ -159,6 +162,12 @@ function App() {
             localStorage.removeItem(LocalStorageKeys.WORKS_KEY);
           }}>
             RemoveSaved
+          </Button>
+          <Button size="small" onClick={()=> {
+            console.log("projects",projects)
+            console.log("selectedRowId",selectedRowId)
+          }}>
+            DebugLog
           </Button>
         </Stack>
         <DataGrid
