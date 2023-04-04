@@ -289,6 +289,9 @@ function App() {
           </Box>
         </LocalizationProvider> */}
       {/* </div> */}
+      <div id="tauri">
+        <input type="text"/>
+      </div>
     </div>
   );
 }
