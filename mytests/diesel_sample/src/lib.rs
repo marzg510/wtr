@@ -13,3 +13,16 @@ pub fn establish_connection() -> SqliteConnection {
     SqliteConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
+
+use self::models::{NewPost, Post};
+
+pub fn create_post(conn: &mut SqliteConnection, title: &str, body: &str) -> usize {
+    use crate::schema::posts;
+
+    let new_post = NewPost { title, body };
+
+    diesel::insert_into(posts::table)
+        .values(&new_post)
+        .execute(conn)
+        .expect("Error saving new post")
+}
