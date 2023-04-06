@@ -14,6 +14,12 @@ Work Time Recorder
 npm install date-fns
 ```
 
+## tauri
+
+```bash
+cargo install tauri-cli
+```
+
 ## Material UI
 
 - https://mui.com/
@@ -44,14 +50,15 @@ npm install @date-io/date-fns
 
 ```bash
 nvm use v18
+cargo install tauri-cli
 npx create-react-app test_react_data_grid --template typescript
 cd test_react_data_grid
 npm start
+(Ctrl-C)
 npm install @mui/material @emotion/react @emotion/styled
 npm install @mui/x-data-grid
 npm install @mui/icons-material
 npm install date-fns
-(Ctrl-C)
 # App.tsx編集
 npm start
 ```
