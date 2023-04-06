@@ -63,3 +63,13 @@
 article {
   display: flex;
 }
+
+/* Added by create tauri-app */
+.logo.vite:hover {
+  filter: drop-shadow(0 0 2em #747bff);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafb);
+}
+/* Added by create tauri-app */
