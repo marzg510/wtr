@@ -7,7 +7,7 @@ struct User {
     id: i64,
     name: String,
     lastname: String,
-    active: bool
+    active: bool,
 }
 
 #[tokio::main]
@@ -55,26 +55,45 @@ async fn main() {
         println!("[{}]: {:?}", idx, row.get::<String, &str>("name"));
     }
 
-    let result = sqlx::query("INSERT INTO users (name) VALUES (?)")
-    .bind("bobby")
-    .execute(&db)
-    .await
-    .unwrap();
+    // let result = sqlx::query("INSERT INTO users (name) VALUES (?)")
+    // .bind("bobby")
+    // .execute(&db)
+    // .await
+    // .unwrap();
+
+    // println!("Query result: {:?}", result);
+
+    // let user_results = sqlx::query_as::<_, User>("SELECT id, name, active FROM users")
+    //     .fetch_all(&db)
+    //     .await
+    //     .unwrap();
+
+    // for user in user_results {
+    //     println!(
+    //         "[{}] name: {}, active: {}",
+    //         user.id, &user.name, user.active
+    //     );
+    // }
+    let result = sqlx::query("INSERT INTO users (name, lastname) VALUES (?,?)")
+        .bind("bobby")
+        .bind("fischer")
+        .execute(&db)
+        .await
+        .unwrap();
 
     println!("Query result: {:?}", result);
 
-    let user_results = sqlx::query_as::<_, User>("SELECT id, name, active FROM users")
+    let user_results = sqlx::query_as::<_, User>("SELECT id, name, lastname, active FROM users")
         .fetch_all(&db)
         .await
         .unwrap();
 
     for user in user_results {
         println!(
-            "[{}] name: {}, active: {}",
-            user.id, &user.name, user.active
+            "[{}] name: {}, lastname: {}, active: {}",
+            user.id, &user.name, &user.lastname, user.active
         );
     }
-
     let delete_result = sqlx::query("DELETE FROM users WHERE name=$1")
         .bind("bobby")
         .execute(&db)
