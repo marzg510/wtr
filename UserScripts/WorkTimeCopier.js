@@ -42,7 +42,16 @@
 
   // Cookie取得
   var cookieRowCopyClicked = Cookies.get(cookieKeyRowCopyClicked);
-  const cookieTextArea = Cookies.get(cookieKeyTextArea);
+  const compressedTextArea = Cookies.get(cookieKeyTextArea);
+  console.log("cookie compressed TextArea", compressedTextArea);
+  const compressedString = decodeURIComponent(compressedTextArea);
+  console.log("cookie compressed String", compressedString);
+  const compressedBinStr = atob(compressedString);
+  console.log("cookie compressed BinStr", compressedBinStr);
+  const compressedBin = Uint8Array.from(compressedBinStr, str => str.charCodeAt(0));
+  console.log("cookie compressed Bin", compressedBin);
+  const cookieTextArea = pako.inflate(compressedBin, { to: 'string' });
+  // const cookieTextArea = Cookies.get(cookieKeyTextArea);
   const cookieIndex = Cookies.get(cookieKeyIndex);
   var alerts = Cookies.get(cookieKeyAlerts);
   if ( !alerts ) { alerts = []; }
@@ -77,6 +86,7 @@
    * 転記ボタンイベント
    */
   function onCopyClicked() {
+    console.log("on copy clicked")
     var lines = getTextAreaLines();
     console.log(lines.length)
     debugArea.log(`onCopyClicked lines=${lines.length}`);
@@ -250,7 +260,14 @@
   function clickRowCopy(projectCd,index) {
     console.log("click row copy");
     Cookies.set(cookieKeyRowCopyClicked, true, {expires: 1});
-    Cookies.set(cookieKeyTextArea, $(`#${idTextArea}`).val(), {expires: 1});
+    const textareaValue = $(`#${idTextArea}`).first().val();
+    const compressed = pako.deflate(textareaValue)
+    const compressedString = btoa(String.fromCharCode.apply(null, compressed));
+    const compressedEncoded = encodeURIComponent(compressedString);
+    Cookies.set(cookieKeyTextArea, compressedEncoded, {expires: 1});
+    console.log(`text area(${idTextArea})`, $(`#${idTextArea}`).first() );
+    console.log(`text area val(${idTextArea})`, textareaValue );
+    console.log("cookie text area", Cookies.get(cookieKeyTextArea));
     Cookies.set(cookieKeyIndex, index, {expires: 1});
     $(getProjectRows(projectCd)).first().find('input[type="button"][value="コピー"]').first().click();
   }
