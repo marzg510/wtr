@@ -46,12 +46,19 @@
   console.log("cookie compressed TextArea", compressedTextArea);
   const compressedString = decodeURIComponent(compressedTextArea);
   console.log("cookie compressed String", compressedString);
-  const compressedBinStr = atob(compressedString);
-  console.log("cookie compressed BinStr", compressedBinStr);
-  const compressedBin = Uint8Array.from(compressedBinStr, str => str.charCodeAt(0));
-  console.log("cookie compressed Bin", compressedBin);
-  const cookieTextArea = pako.inflate(compressedBin, { to: 'string' });
-  // const cookieTextArea = Cookies.get(cookieKeyTextArea);
+  // if ( compressedString ) {
+  const cookieTextArea = (function() {
+    try {
+      const compressedBinStr = atob(compressedString);
+      console.log("cookie compressed BinStr", compressedBinStr);
+      const compressedBin = Uint8Array.from(compressedBinStr, str => str.charCodeAt(0));
+      console.log("cookie compressed Bin", compressedBin);
+      return pako.inflate(compressedBin, { to: 'string' });
+    } catch (e) {
+      console.log("cookie textArea Reading exception :",e)
+      return undefined;
+    }
+  })();
   const cookieIndex = Cookies.get(cookieKeyIndex);
   var alerts = Cookies.get(cookieKeyAlerts);
   if ( !alerts ) { alerts = []; }
