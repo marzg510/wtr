@@ -109,6 +109,7 @@ async fn insert_my_table(
 mod tests {
     use super::*;
     const DATABASE_URL : &str = "sqlite::memory:";
+    // const DATABASE_URL : &str = "./db/test.sqlite";
     struct TestContext {
         db: Pool<Sqlite>,
     }
@@ -117,7 +118,7 @@ mod tests {
         println!("Test setup ...");
         use tauri::async_runtime::block_on;
         let db = block_on(create_sqlite_pool(DATABASE_URL)).unwrap();
-        let result = block_on(migrate_database(&db));
+        block_on(migrate_database(&db)).unwrap();
 
         TestContext {
             db: db,
@@ -127,7 +128,7 @@ mod tests {
     #[test]
     fn test_create_sqlite_pool() {
         use tauri::async_runtime::block_on;
-        setup();
+        // setup();
         let db = block_on(create_sqlite_pool("sqlite::memory:"));
         println!("db: {:?}", db);
         assert!(db.is_ok());
@@ -140,10 +141,10 @@ mod tests {
         let pool = context.db;
         let mut tx = block_on(pool.begin()).unwrap();
         let result = block_on(insert_my_table(&mut tx, 1, "test01"));
-        assert!(result.is_ok());
+        assert!(result.is_ok(), "insert error with {:?}", result);
         // トランザクションをコミットする
         let result = block_on(tx.commit());
-        assert!(result.is_ok());
+        assert!(result.is_ok(), "commit error with {:?}", result);
     }
 }
 
