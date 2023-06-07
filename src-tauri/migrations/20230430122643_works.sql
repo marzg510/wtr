@@ -1,10 +1,10 @@
 -- Add migration script here
-create table works (
-  id integer not null primary key,
-  work_date date not null,
-  start_time datetime not null,
-  end_time datetime not null,
-  work nvarchar(1000) not null,
-  project_id integer,
-  task nvarchar(1000)
-)
+CREATE TABLE works (
+    id INTEGER PRIMARY KEY,
+    work_date DATE NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    work TEXT NOT NULL,
+    project_id INTEGER
+    task TEXT
+);
