@@ -25,7 +25,7 @@
   // 初期値入力
   var today = new Date();
   if ( today.getDate() >= 28 ) {
-    today = new Date(today.getFullYear(), today.getMonth()+1, today.getDate() );
+    today = new Date(today.getFullYear(), today.getMonth()+1, 1 );
   }
   var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
   var lastDay = new Date(today.getFullYear(), today.getMonth()+1, 0);
