@@ -9,6 +9,24 @@ import { addHours, format } from 'date-fns';
 import { timeColumnType } from './DateEditor';
 import { PanoramaFishEyeSharp } from '@mui/icons-material';
 
+// Tauriが提供するinvoke関数をインポートする
+import { invoke } from '@tauri-apps/api'
+
+type TWork = { id: number,
+  workDate: Date,
+  startTime: Date,
+  endTime: Date,
+  restTime: number,
+  workTime: number,
+  work: string,
+  projectId: string,
+  task: string,
+};
+// Workの追加直後に呼ばれるハンドラ
+async function handleAddWork(work: TWork) {
+  // IPCでCoreプロセスのhandle_add_workを呼ぶ（引数はJSON形式）
+  await invoke<void>("handle_add_work", { "work": work } )
+};
 
 export enum LocalStorageKeys {
   WORKS_KEY   = 'm510-grid-data',
